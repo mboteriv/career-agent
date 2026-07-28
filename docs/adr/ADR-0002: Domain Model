@@ -1,0 +1,52 @@
+# ADR-0002: Domain Model
+
+## Status
+
+Accepted
+
+## Context
+
+Career Agent necesita representar información procedente de múltiples fuentes de empleo y compararla con perfiles profesionales de distintos usuarios.
+
+El modelo debe ser sencillo en las primeras versiones, pero permitir evolucionar sin romper la arquitectura.
+
+## Decision
+
+El dominio del sistema estará formado inicialmente por cuatro entidades principales:
+
+- Company
+- JobOffer
+- ProfessionalProfile
+- Recommendation
+
+Conceptos como:
+
+- skills
+- experience
+- education
+- certifications
+- languages
+- preferences
+- salary
+
+se modelarán inicialmente como atributos de estas entidades y no como entidades independientes.
+
+Cada entidad tendrá una identidad propia y será utilizada por todos los módulos del sistema.
+
+## Consequences
+
+### Advantages
+
+- Modelo sencillo.
+- Bajo acoplamiento.
+- Fácil evolución.
+- Menor complejidad en las primeras versiones.
+
+### Disadvantages
+
+- Algunos atributos podrían convertirse en entidades en futuras versiones.
+- Será necesario realizar migraciones del modelo si aparecen nuevos requisitos.
+
+## Future considerations
+
+Si conceptos como Skill o Certification requieren identidad propia (por ejemplo, para almacenar categorías, sinónimos o relaciones), podrán promocionarse a entidades independientes sin modificar la arquitectura general.
