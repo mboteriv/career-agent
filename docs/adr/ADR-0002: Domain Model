@@ -14,10 +14,10 @@ El modelo debe ser sencillo en las primeras versiones, pero permitir evolucionar
 
 El dominio del sistema estará formado inicialmente por cuatro entidades principales:
 
-- Company
-- JobOffer
-- ProfessionalProfile
-- Recommendation
+- Company: representa una organización que publica ofertas de empleo.
+- JobOffer: representa una oportunidad laboral concreta.
+- ProfessionalProfile: representa el perfil profesional del usuario.
+- Recommendation: representa el resultado del proceso de evaluación de una oferta para un perfil.
 
 Conceptos como:
 
