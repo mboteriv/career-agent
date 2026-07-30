@@ -17,3 +17,15 @@ class GreenhouseCollector:
             )
             for job in payload.get("jobs", [])
         ]
+    
+    def collect_from_api(
+        self,
+        board: str,
+    ) -> list[SourceJobOffer]:
+        response = requests.get(
+        f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs"
+        )
+
+        payload = response.json()
+
+        return self.collect(payload)
