@@ -1,0 +1,14 @@
+{
+  "id": 44444,
+  "title": "Product Engineer",
+  "company_name": "Greenhouse",
+  "location": {
+    "name": "San Francisco, CA"
+  },
+  "content": "<p>This is the job description.</p>",
+  "absolute_url": "https://boards.greenhouse.io/example/jobs/44444",
+  "updated_at": "2013-07-02T19:39:23Z",
+  "first_published": "2013-08-01T20:00:00Z",
+  "internal_job_id": 55555,
+  "language": "en"
+}

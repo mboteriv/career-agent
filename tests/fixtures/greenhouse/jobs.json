@@ -1,0 +1,22 @@
+{
+  "jobs": [
+    {
+      "id": 12345,
+      "title": "Backend Engineer",
+      "absolute_url": "https://boards.greenhouse.io/example/jobs/12345",
+      "location": {
+        "name": "Remote"
+      },
+      "updated_at": "2026-07-30T10:00:00Z"
+    },
+    {
+      "id": 12346,
+      "title": "Frontend Engineer",
+      "absolute_url": "https://boards.greenhouse.io/example/jobs/12346",
+      "location": {
+        "name": "Madrid, Spain"
+      },
+      "updated_at": "2026-07-30T11:00:00Z"
+    }
+  ]
+}
