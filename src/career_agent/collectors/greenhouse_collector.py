@@ -1,10 +1,15 @@
 from datetime import UTC, datetime
 
+from career_agent.clients.greenhouse_client import GreenhouseClient
+
 from career_agent.dto.source_job_offer import SourceJobOffer
 from career_agent.models.enums import Source
 
 
 class GreenhouseCollector:
+
+    def __init__(self) -> None:
+        self._client = GreenhouseClient()
 
     def collect(self, payload: dict) -> list[SourceJobOffer]:
         collected_at = datetime.now(UTC)
@@ -17,15 +22,12 @@ class GreenhouseCollector:
             )
             for job in payload.get("jobs", [])
         ]
-    
+
     def collect_from_api(
         self,
         board: str,
     ) -> list[SourceJobOffer]:
-        response = requests.get(
-        f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs"
-        )
 
-        payload = response.json()
+        payload = self._client.get_jobs(board)
 
         return self.collect(payload)
