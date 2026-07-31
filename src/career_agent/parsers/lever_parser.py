@@ -12,13 +12,15 @@ class LeverParser:
 
         payload = source_offer.raw_data
 
+        categories = payload.get("categories", {})
+
         return ParsedJobOffer(
             id=payload["id"],
             source=source_offer.source,
             url=payload["hostedUrl"],
             title=payload["text"],
-            company_name="",
+            company_name=source_offer.metadata.get("company_name", ""),
             description=payload["description"],
-            location=payload["categories"]["location"],
-            employment_type=payload["categories"]["commitment"],
+            location=categories.get("location", ""),
+            employment_type=categories.get("commitment", ""),
         )

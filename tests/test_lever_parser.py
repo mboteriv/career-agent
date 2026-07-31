@@ -14,6 +14,10 @@ def test_parser_extracts_title():
     source_offer = SourceJobOffer(
         source=Source.LEVER,
         raw_data=payload,
+        metadata={
+            "company_name": "Canonical",
+            "board": "canonical",
+        },
     )
 
     parsed = LeverParser().parse(source_offer)
@@ -25,3 +29,4 @@ def test_parser_extracts_title():
     assert parsed.location == payload["categories"]["location"]
     assert parsed.employment_type == payload["categories"]["commitment"]
     assert parsed.remote_type is None
+    assert parsed.company_name == "Canonical"

@@ -1,15 +1,22 @@
-from career_agent.collectors.greenhouse_collector import GreenhouseCollector
 from career_agent.normalizers.job_offer_normalizer import JobOfferNormalizer
-from career_agent.parsers.greenhouse_parser import GreenhouseParser
 from career_agent.models.job_offer import JobOffer
 
 
 class JobImportService:
 
-    def __init__(self) -> None:
-        self._collector = GreenhouseCollector()
-        self._parser = GreenhouseParser()
-        self._normalizer = JobOfferNormalizer()
+    def __init__(
+        self,
+        collector,
+        parser,
+        normalizer=None,
+    ) -> None:
+
+        self._collector = collector
+        self._parser = parser
+        self._normalizer = (
+            normalizer
+            or JobOfferNormalizer()
+        )
 
     def import_jobs(
         self,

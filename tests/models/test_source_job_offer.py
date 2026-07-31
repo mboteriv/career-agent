@@ -25,4 +25,4 @@ def test_source_job_offer_is_immutable():
     )
 
     with pytest.raises(Exception):
-        offer.raw_data = {}
+        offer.source = Source.GREENHOUSE

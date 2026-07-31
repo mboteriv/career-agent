@@ -1,11 +1,15 @@
-from pprint import pprint
+from career_agent.collectors.lever_collector import LeverCollector
+from career_agent.parsers.lever_parser import LeverParser
+from career_agent.services.job_import_service import JobImportService
 
-from career_agent.clients.lever_client import LeverClient
+service = JobImportService(
+    collector=LeverCollector(),
+    parser=LeverParser(),
+)
 
-client = LeverClient()
+jobs = service.import_jobs("canonical")
 
-payload = client.get_jobs("robinhood")
+print(f"{len(jobs)} jobs")
 
-print(type(payload))
-print(len(payload))
-print(payload[0].keys())
+for job in jobs[:5]:
+    print(job.title)

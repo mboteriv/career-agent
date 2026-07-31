@@ -24,10 +24,9 @@ class GreenhouseCollector:
         ]
 
     def collect_from_api(
-        self,
-        board: str,
-    ) -> list[SourceJobOffer]:
-
+    self,
+    board: str,
+) -> list[SourceJobOffer]:
         payload = self._client.get_jobs(board)
 
         return self.collect(payload)

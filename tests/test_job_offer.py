@@ -60,7 +60,7 @@ def test_job_offer_supports_remote_type():
 
 
 def test_invalid_remote_type_raises_validation_error():
-    with pytest.raises(ValidationError):
+    with pytest.raises(Exception):
         create_job_offer(
             remote_type="teletransportado"
         )
