@@ -85,3 +85,22 @@ Current status:
 - [ ] Notifications
 - [ ] Persistence
 - [ ] CLI
+
+
+          +------------------+
+          | JobImportService |
+          +------------------+
+                   │
+        +----------+----------+
+        │                     │
+  Collector              Parser
+        │                     │
+        └----------+----------+
+                   │
+          SourceJobOffer
+                   │
+           ParsedJobOffer
+                   │
+        JobOfferNormalizer
+                   │
+              JobOffer

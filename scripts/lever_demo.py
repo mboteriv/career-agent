@@ -1,10 +1,10 @@
-from career_agent.collectors.lever_collector import LeverCollector
-from career_agent.parsers.lever_parser import LeverParser
+from career_agent.providers.lever_provider import lever_provider
 from career_agent.services.job_import_service import JobImportService
+from career_agent.services.job_import_service import JobImportService
+from career_agent.providers.ats_provider import ATSProvider
 
 service = JobImportService(
-    collector=LeverCollector(),
-    parser=LeverParser(),
+    provider=lever_provider(),
 )
 
 jobs = service.import_jobs("canonical")

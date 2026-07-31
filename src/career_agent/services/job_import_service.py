@@ -1,18 +1,18 @@
 from career_agent.normalizers.job_offer_normalizer import JobOfferNormalizer
 from career_agent.models.job_offer import JobOffer
+from career_agent.providers.ats_provider import ATSProvider
 
 
 class JobImportService:
 
     def __init__(
         self,
-        collector,
-        parser,
+        provider: ATSProvider,
         normalizer=None,
     ) -> None:
 
-        self._collector = collector
-        self._parser = parser
+        self._collector = provider.collector
+        self._parser = provider.parser
         self._normalizer = (
             normalizer
             or JobOfferNormalizer()
