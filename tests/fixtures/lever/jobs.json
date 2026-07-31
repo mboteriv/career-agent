@@ -1,0 +1,28 @@
+[
+  {
+    "id": "123456",
+    "text": "Software Engineer",
+    "description": "<p>Develop awesome software.</p>",
+    "hostedUrl": "https://jobs.lever.co/example/123456",
+    "workplaceType": "remote",
+    "categories": {
+      "location": "Madrid",
+      "commitment": "Full-time",
+      "team": "Engineering",
+      "department": "Technology"
+    }
+  },
+  {
+    "id": "789012",
+    "text": "Backend Engineer",
+    "description": "<p>Build backend services.</p>",
+    "hostedUrl": "https://jobs.lever.co/example/789012",
+    "workplaceType": "hybrid",
+    "categories": {
+      "location": "Barcelona",
+      "commitment": "Full-time",
+      "team": "Platform",
+      "department": "Technology"
+    }
+  }
+]

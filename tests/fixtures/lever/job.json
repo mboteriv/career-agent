@@ -1,0 +1,13 @@
+{
+  "id": "123456",
+  "text": "Software Engineer",
+  "description": "<p>Develop awesome software.</p>",
+  "hostedUrl": "https://jobs.lever.co/example/123456",
+  "workplaceType": "remote",
+  "categories": {
+    "location": "Madrid",
+    "commitment": "Full-time",
+    "team": "Engineering",
+    "department": "Technology"
+  }
+}
