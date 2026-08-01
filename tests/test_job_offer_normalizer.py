@@ -12,6 +12,7 @@ from career_agent.models.enums import Source
 
 def create_parsed_job_offer(**kwargs):
     data = {
+        "id": "123",
         "source": Source.GREENHOUSE,
         "collected_at": datetime.now(),
         "title": "Backend Engineer",

@@ -7,6 +7,7 @@ from career_agent.models.enums import (
 )
 from career_agent.models.job_offer import JobOffer
 from career_agent.repositories.job_offer_repository import JobOfferRepository
+from career_agent.testing.factories import create_job_offer
 
 
 def test_repository_saves_job_offer():
@@ -25,22 +26,7 @@ def test_repository_can_be_created():
 
     assert repository is not None
 
-def create_job_offer(**kwargs) -> JobOffer:
-    data = {
-        "id": "123",
-        "source": Source.GREENHOUSE,
-        "url": "https://example.com/job/123",
-        "title": "Backend Engineer",
-        "company_name": "Example Inc.",
-        "description": "Example description",
-        "location": "Málaga, Spain",
-        "employment_type": EmploymentType.FULL_TIME,
-        "remote_type": RemoteType.REMOTE,
-        "created_at": datetime.now(),
-    }
 
-    data.update(kwargs)
-    return JobOffer(**data)
 
 def test_repository_gets_job_offer_by_id():
     repository = JobOfferRepository()

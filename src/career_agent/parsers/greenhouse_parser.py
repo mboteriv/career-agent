@@ -7,6 +7,7 @@ class GreenhouseParser:
         payload = source.payload
 
         return ParsedJobOffer(
+            id=str(payload["id"]),
             source=source.source,
             collected_at=source.collected_at,
 

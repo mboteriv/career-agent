@@ -1,13 +1,16 @@
 from career_agent.normalizers.job_offer_normalizer import JobOfferNormalizer
 from career_agent.models.job_offer import JobOffer
 from career_agent.providers.ats_provider import ATSProvider
-
+from career_agent.repositories.job_offer_repository import (
+    JobOfferRepository,
+)
 
 class JobImportService:
 
     def __init__(
         self,
         provider: ATSProvider,
+        repository=None,
         normalizer=None,
     ) -> None:
 
@@ -17,7 +20,10 @@ class JobImportService:
             normalizer
             or JobOfferNormalizer()
         )
-
+        self._repository = (
+            repository
+            or JobOfferRepository()
+        )
     def import_jobs(
         self,
         board: str,
@@ -25,9 +31,13 @@ class JobImportService:
 
         source_offers = self._collector.collect_from_api(board)
 
-        return [
+        jobs = [
             self._normalizer.normalize(
                 self._parser.parse(source_offer)
             )
             for source_offer in source_offers
         ]
+
+        self._repository.save_all(jobs)
+
+        return jobs

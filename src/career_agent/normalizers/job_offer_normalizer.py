@@ -38,7 +38,7 @@ class JobOfferNormalizer:
     ) -> JobOffer:
 
         return JobOffer(
-            id="temporary",
+            id=parsed.id,
             source=parsed.source,
             url=parsed.source_url,
 

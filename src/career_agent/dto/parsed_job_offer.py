@@ -10,6 +10,7 @@ class ParsedJobOffer(BaseModel):
 
     source: Source
     collected_at: datetime
+    id: str
 
     title: str
     company_name: str

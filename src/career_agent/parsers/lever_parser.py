@@ -15,7 +15,7 @@ class LeverParser:
         categories = payload.get("categories", {})
 
         return ParsedJobOffer(
-            id=payload["id"],
+            id=str(payload["id"]),
             source=source_offer.source,
             url=payload["hostedUrl"],
             title=payload["text"],
