@@ -1,6 +1,9 @@
+from requests import session
+
 from career_agent.database.database import get_session
 from career_agent.database.models import JobOfferRecord
 from sqlalchemy import delete
+from career_agent.models import job_offer
 from career_agent.models.job_offer import JobOffer
 from career_agent.models.enums import (
     EmploymentType,
@@ -125,3 +128,43 @@ class JobOfferRepository:
     ):
         for job_offer in job_offers:
             self.save(job_offer)
+
+    def update(
+        self,
+        job_offer: JobOffer,
+    ) -> None:
+
+        with get_session() as session:
+
+            record_id = f"{job_offer.source.value}:{job_offer.id}"
+
+            record = session.get(
+                JobOfferRecord,
+                record_id,
+            )
+
+            if record is None:
+                return
+
+            record.url = job_offer.url
+            record.title = job_offer.title
+            record.company_name = job_offer.company_name
+            record.description = job_offer.description
+            record.location = job_offer.location
+
+            record.employment_type = (
+                job_offer.employment_type.value
+                if job_offer.employment_type
+                else None
+            )
+
+            record.remote_type = (
+                job_offer.remote_type.value
+                if job_offer.remote_type
+                else None
+            )
+
+            record.created_at = job_offer.created_at
+
+            session.add(record)
+            session.commit()

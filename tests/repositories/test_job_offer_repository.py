@@ -129,3 +129,26 @@ def test_repository_saves_multiple_job_offers():
     loaded = repository.list_all()
 
     assert len(loaded) == 3
+
+def test_repository_updates_job_offer():
+
+    repository = JobOfferRepository()
+
+    repository.delete_all()
+
+    job = create_job_offer()
+
+    repository.save(job)
+
+    updated = create_job_offer(
+        title="Senior Backend Engineer",
+    )
+
+    repository.update(updated)
+
+    loaded = repository.get_by_id(
+        Source.GREENHOUSE,
+        "123",
+    )
+
+    assert loaded.title == "Senior Backend Engineer"
