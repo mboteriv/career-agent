@@ -13,6 +13,7 @@ from career_agent.models.enums import (
 from sqlmodel import select
 
 
+
 class JobOfferRepository:
 
     def save(self, job_offer):
@@ -167,4 +168,45 @@ class JobOfferRepository:
             record.created_at = job_offer.created_at
 
             session.add(record)
+            session.commit()
+
+    def list_by_source(
+        self,
+        source: Source,
+    )-> list[JobOffer]:
+
+        with get_session() as session:
+
+            records = session.exec(
+                select(JobOfferRecord).where(
+                    JobOfferRecord.source == source.value
+                )
+            ).all()
+
+            return [
+                self._to_domain(record)
+                for record in records
+            ]
+
+    def delete(
+        self,
+        source: Source,
+        job_id: str,
+    ) -> None:
+
+        with get_session() as session:
+
+            record_id = (
+                f"{source.value}:{job_id}"
+            )
+
+            record = session.get(
+                JobOfferRecord,
+                record_id,
+            )
+
+            if record is None:
+                return
+
+            session.delete(record)
             session.commit()

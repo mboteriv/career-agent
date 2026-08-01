@@ -152,3 +152,58 @@ def test_repository_updates_job_offer():
     )
 
     assert loaded.title == "Senior Backend Engineer"
+
+def test_repository_lists_jobs_by_source():
+
+    repository = JobOfferRepository()
+
+    repository.delete_all()
+
+    repository.save(
+        create_job_offer(
+            id="1",
+            source=Source.GREENHOUSE,
+        )
+    )
+
+    repository.save(
+        create_job_offer(
+            id="2",
+            source=Source.GREENHOUSE,
+        )
+    )
+
+    repository.save(
+        create_job_offer(
+            id="1",
+            source=Source.LEVER,
+        )
+    )
+
+    jobs = repository.list_by_source(
+        Source.GREENHOUSE,
+    )
+
+    assert len(jobs) == 2
+
+def test_repository_deletes_job_offer():
+
+    repository = JobOfferRepository()
+
+    repository.delete_all()
+
+    repository.save(
+        create_job_offer()
+    )
+
+    repository.delete(
+        Source.GREENHOUSE,
+        "123",
+    )
+
+    loaded = repository.get_by_id(
+        Source.GREENHOUSE,
+        "123",
+    )
+
+    assert loaded is None

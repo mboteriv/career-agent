@@ -1,3 +1,4 @@
+from career_agent.models.enums import Source
 from career_agent.models.import_result import ImportResult
 from career_agent.normalizers.job_offer_normalizer import JobOfferNormalizer
 from career_agent.models.job_offer import JobOffer
@@ -5,7 +6,6 @@ from career_agent.providers.ats_provider import ATSProvider
 from career_agent.repositories.job_offer_repository import (
     JobOfferRepository,
 )
-from career_agent.models.import_result import ImportResult
 
 class JobImportService:
 
@@ -43,6 +43,13 @@ class JobImportService:
         new_jobs = []
         updated_jobs = []
         unchanged_jobs = []
+        removed_jobs = self._find_removed_jobs(jobs)
+
+        for job in removed_jobs:
+            self._repository.delete(
+                job.source,
+                job.id,
+            )
 
         for job in jobs:
             self._classify_job(
@@ -51,12 +58,13 @@ class JobImportService:
                 updated_jobs,
                 unchanged_jobs,
             )
+        
 
         return ImportResult(
             new_jobs=new_jobs,
             updated_jobs=updated_jobs,
             unchanged_jobs=unchanged_jobs,
-            removed_jobs=[],
+            removed_jobs=removed_jobs,
         )
 
     def _classify_job(
@@ -96,3 +104,29 @@ class JobImportService:
             or existing.employment_type != incoming.employment_type
             or existing.remote_type != incoming.remote_type
         )
+
+    def _find_removed_jobs(
+        self,
+        imported_jobs: list[JobOffer],
+    ) -> list[JobOffer]:
+
+        if not imported_jobs:
+            return []
+        source = imported_jobs[0].source
+
+        stored_jobs = self._repository.list_by_source(
+            source,
+        )
+
+        
+        imported_ids = {
+            job.id
+            for job in imported_jobs
+        }
+
+             
+        return [
+            job
+            for job in stored_jobs
+            if job.id not in imported_ids
+        ]

@@ -83,3 +83,30 @@ def test_import_detects_updated_job():
     assert len(updated_jobs) == 1
     assert unchanged_jobs == []
     assert loaded.title == "Senior Backend Engineer"
+
+
+def test_import_detects_removed_jobs():
+
+    repository = JobOfferRepository()
+    repository.delete_all()
+
+    repository.save(create_job_offer(id="1"))
+    repository.save(create_job_offer(id="2"))
+    repository.save(create_job_offer(id="3"))
+
+    service = JobImportService(
+        provider=greenhouse_provider(),
+        repository=repository,
+    )
+
+    imported = [
+        create_job_offer(id="1"),
+        create_job_offer(id="3"),
+    ]
+
+    removed = service._find_removed_jobs(
+        imported,
+    )
+
+    assert len(removed) == 1
+    assert removed[0].id == "2"
