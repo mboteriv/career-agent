@@ -18,8 +18,8 @@ class ParsedJobOffer(BaseModel):
 
     location: str
 
-    employment_type: str
-    remote_type: str
+    employment_type: str | None = None
+    remote_type: str | None = None
 
     source_url: str
 

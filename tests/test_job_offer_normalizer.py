@@ -119,3 +119,29 @@ def test_on_site_maps_to_onsite():
     job = JobOfferNormalizer().normalize(parsed)
 
     assert job.remote_type == RemoteType.ONSITE
+    
+def test_normalizer_infers_remote_type_from_home_based_location():
+
+    parsed = create_parsed_job_offer(
+        location="Home based - EMEA",
+        remote_type=None,
+    )
+
+    normalizer = JobOfferNormalizer()
+
+    job = normalizer.normalize(parsed)
+
+    assert job.remote_type == RemoteType.REMOTE
+    
+def test_normalizer_preserves_existing_remote_type():
+
+    parsed = create_parsed_job_offer(
+        location="Home based - EMEA",
+        remote_type="hybrid",
+    )
+
+    normalizer = JobOfferNormalizer()
+
+    job = normalizer.normalize(parsed)
+
+    assert job.remote_type == RemoteType.HYBRID

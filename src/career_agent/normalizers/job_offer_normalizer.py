@@ -52,7 +52,8 @@ class JobOfferNormalizer:
             ),
 
             remote_type=self._normalize_remote_type(
-                parsed.remote_type
+                parsed.remote_type,
+                parsed.location,
             ),
 
             created_at=parsed.collected_at,
@@ -68,9 +69,32 @@ class JobOfferNormalizer:
 
     def _normalize_remote_type(
         self,
-        value: str,
+        remote_type: str | None,
+        location: str | None,
     ) -> RemoteType:
+
+        if not remote_type:
+            return self._infer_remote_type(location)
+
         return self._REMOTE_TYPE_MAP.get(
-            value.strip().lower(),
+            remote_type.strip().lower(),
             RemoteType.UNKNOWN,
         )
+        
+    def _infer_remote_type(
+        self,
+        location: str | None,
+    ) -> RemoteType:
+
+        if not location:
+            return RemoteType.UNKNOWN
+
+        location = location.lower()
+
+        if "home based" in location:
+            return RemoteType.REMOTE
+
+        if "remote" in location:
+            return RemoteType.REMOTE
+
+        return RemoteType.UNKNOWN
