@@ -11,6 +11,10 @@ from career_agent.models.enums import (
     Source,
 )
 from sqlmodel import select
+from sqlalchemy import or_
+
+from career_agent.models.job_search_criteria import JobSearchCriteria
+from career_agent.models.job_sort_field import JobSortField
 
 
 
@@ -210,3 +214,124 @@ class JobOfferRepository:
 
             session.delete(record)
             session.commit()
+
+    def search(
+        self,
+        criteria: JobSearchCriteria,
+    ) -> list[JobOffer]:
+
+        with get_session() as session:
+
+            statement = self._build_search_statement(
+                criteria,
+            )
+
+            statement = statement.offset(
+                (criteria.page - 1) * criteria.page_size
+            )
+
+            statement = statement.limit(
+                criteria.page_size
+            )
+
+            if criteria.sort_by == JobSortField.CREATED_AT:
+                if criteria.descending:
+                    statement = statement.order_by(
+                        JobOfferRecord.created_at.desc()
+                    )
+                else:
+                    statement = statement.order_by(
+                        JobOfferRecord.created_at.asc()
+                    )
+
+            records = session.exec(
+                statement
+            ).all()    
+
+            return [
+                self._to_domain(record)
+                for record in records
+            ]
+
+
+    def count(
+        self,
+        criteria: JobSearchCriteria,
+    ) -> int:
+
+        with get_session() as session:
+
+            statement = self._build_search_statement(
+                criteria,
+            )
+
+            return len(
+                session.exec(statement).all()
+            )
+
+    def _build_search_statement(
+        self,
+        criteria: JobSearchCriteria,
+    ):
+        statement = select(JobOfferRecord)
+    
+        if criteria.company_name:
+            statement = statement.where(
+                JobOfferRecord.company_name.ilike(
+                    f"%{criteria.company_name}%"
+                )
+            )
+    
+        if criteria.location:
+            statement = statement.where(
+                JobOfferRecord.location.ilike(
+                    f"%{criteria.location}%"
+                )
+            )
+    
+        if criteria.remote_type:
+            statement = statement.where(
+                JobOfferRecord.remote_type
+                == criteria.remote_type.value
+            )
+    
+        if criteria.employment_type:
+            statement = statement.where(
+                JobOfferRecord.employment_type
+                == criteria.employment_type.value
+            )
+    
+        if criteria.keywords:
+            conditions = []
+            for keyword in criteria.keywords:
+                conditions.append(
+                    JobOfferRecord.title.ilike(
+                        f"%{keyword}%"
+                    )
+                )
+                        
+                conditions.append(
+                    JobOfferRecord.description.ilike(
+                        f"%{keyword}%"
+                    )
+                )
+                    
+            statement = statement.where(
+                or_(*conditions)
+            )
+    
+        if criteria.created_after:
+            statement = statement.where(
+                JobOfferRecord.created_at
+                >= criteria.created_after
+            )
+                    
+        if criteria.created_before:
+            statement = statement.where(
+                JobOfferRecord.created_at
+                <= criteria.created_before
+            )
+            
+        return statement
+
+    
