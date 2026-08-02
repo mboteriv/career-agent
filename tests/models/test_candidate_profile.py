@@ -51,10 +51,10 @@ def test_candidate_profile_supports_languages():
 def test_candidate_profile_supports_experience():
 
     profile = CandidateProfile(
-        experience=5,
+        years_experience=5,
     )
 
-    assert profile.experience == 5
+    assert profile.years_experience == 5
     
 def test_candidate_profile_supports_salary():
 

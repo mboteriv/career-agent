@@ -367,3 +367,66 @@ def test_match_scores_zero_when_job_has_no_experience_requirement():
     )
 
     assert result.score == 0.0
+    
+def test_match_result_contains_job():
+
+    job = create_job_offer()
+
+    result = JobMatchingService().match(
+        job,
+        CandidateProfile(),
+    )
+
+    assert result.job == job
+    
+def test_match_result_contains_matched_skills():
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+            "Docker",
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+                "Docker",
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert "Python" in result.matched_requirements
+    assert "Docker" in result.matched_requirements
+    
+def test_match_result_contains_missing_skills():
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+                "Docker",
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert "Python" in result.matched_requirements
+    assert "Docker" in result.missing_requirements
+    
