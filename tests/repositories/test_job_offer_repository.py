@@ -10,6 +10,9 @@ from career_agent.models.job_search_criteria import JobSearchCriteria
 from career_agent.repositories.job_offer_repository import JobOfferRepository
 from career_agent.testing.factories import create_job_offer
 from career_agent.models.job_sort_field import JobSortField
+from career_agent.models.salary_expectation import (
+    SalaryExpectation,
+)
 
 
 def test_repository_saves_job_offer():
@@ -544,3 +547,26 @@ def test_repository_searches_by_created_before():
 
     assert len(jobs) == 1
     assert jobs[0].id == "1"
+    
+def test_repository_persists_salary():
+
+    repository = JobOfferRepository()
+
+    repository.delete_all()
+
+    job = create_job_offer(
+        salary=SalaryExpectation(
+            amount=70000,
+        ),
+    )
+
+    repository.save(job)
+
+    loaded = repository.search(
+        JobSearchCriteria(),
+    )[0]
+
+    assert loaded.salary is not None
+    assert loaded.salary.amount == 70000
+    assert loaded.salary.currency == "EUR"
+    

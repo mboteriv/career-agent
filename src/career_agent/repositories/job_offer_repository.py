@@ -15,6 +15,7 @@ from sqlalchemy import or_
 
 from career_agent.models.job_search_criteria import JobSearchCriteria
 from career_agent.models.job_sort_field import JobSortField
+from career_agent.models.salary_expectation import SalaryExpectation
 
 
 
@@ -52,6 +53,11 @@ class JobOfferRepository:
                 if job_offer.remote_type
                 else None
             ),
+            salary_amount=(
+                job_offer.salary.amount
+                if job_offer.salary
+                else None
+            ),
             created_at=job_offer.created_at,
         )
 
@@ -76,6 +82,13 @@ class JobOfferRepository:
             remote_type=(
                 RemoteType(record.remote_type)
                 if record.remote_type
+                else None
+            ),
+            salary=(
+                SalaryExpectation(
+                    amount=record.salary_amount,
+                )
+                if record.salary_amount is not None
                 else None
             ),
             created_at=record.created_at,

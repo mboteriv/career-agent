@@ -22,5 +22,7 @@ class JobOfferRecord(SQLModel, table=True):
     employment_type: str | None = None
 
     remote_type: str | None = None
+    
+    salary_amount: int | None = Field(default=None)
 
     created_at: datetime

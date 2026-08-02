@@ -1,6 +1,9 @@
 from sqlmodel import Session, SQLModel, create_engine
 
 from career_agent.database.models import JobOfferRecord
+from pathlib import Path
+
+print(Path("career_agent.db").resolve())
 
 
 DATABASE_URL = "sqlite:///career_agent.db"

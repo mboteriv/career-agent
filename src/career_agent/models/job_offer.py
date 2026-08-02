@@ -7,7 +7,10 @@ from career_agent.models.enums import (
     RemoteType,
     Source,
 )
-
+from career_agent.models.salary_expectation import (
+    SalaryExpectation,
+)
+from career_agent.models.job_requirements import JobRequirements
 
 class JobOffer(BaseModel):
     """Normalized job offer within the Career Agent domain."""
@@ -28,6 +31,8 @@ class JobOffer(BaseModel):
     location: str
     employment_type: EmploymentType
     remote_type: RemoteType
+    salary: SalaryExpectation | None = None
+    requirements: JobRequirements = JobRequirements()
 
     # Metadata
 
