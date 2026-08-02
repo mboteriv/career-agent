@@ -8,12 +8,13 @@ from career_agent.services.job_import_service import (
 from career_agent.models.job_search_criteria import JobSearchCriteria
 from career_agent.services.job_search_service import JobSearchService
 from career_agent.models.enums import RemoteType
+from career_agent.models.enums import EmploymentType
 
 
 app = typer.Typer(no_args_is_help=True)
 
 
-@app.command()
+@app.command(help="Import jobs from an ATS provider.")
 def import_jobs(
     board: str = typer.Argument(
         ...,
@@ -35,7 +36,7 @@ def import_jobs(
     typer.echo(f"Unchanged: {len(result.unchanged_jobs)}")
 
 
-@app.command()
+@app.command(help="Search imported job offers.")
 def search(
     company: str | None = typer.Option(
         None,
@@ -53,9 +54,20 @@ def search(
         help="Filter by location",
     ),
     remote: str | None = typer.Option(
-    None,
-    "--remote",
-    help="Filter by remote type",
+        None,
+        "--remote",
+        help="Filter by remote type",
+    ),
+    employment: str | None = typer.Option(
+        None,
+        "--employment",
+        help="Filter by employment type",
+    ),
+    page: int = typer.Option(
+        1,
+        "--page",
+        min=1,
+        help="Page number",
     ),
 ):
     criteria = _build_search_criteria(
@@ -63,6 +75,8 @@ def search(
         location,
         keyword,
         remote,
+        employment,
+        page,
     )
     service = JobSearchService()
 
@@ -79,6 +93,8 @@ def _build_search_criteria(
     location: str | None,
     keyword: str | None,
     remote: str | None,
+    employment: str | None,
+    page: int,
 ) -> JobSearchCriteria:
 
     return JobSearchCriteria(
@@ -90,6 +106,12 @@ def _build_search_criteria(
             if remote
             else None
         ),
+        employment_type=(
+            EmploymentType(employment)
+            if employment
+            else None
+        ),
+        page=page,
     )
     
 def _print_jobs(
