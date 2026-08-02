@@ -28,12 +28,33 @@ class JobMatchingService:
                 job,
                 profile,
             ),
+            self._match_skills(
+                job,
+                profile,
+            ),
+            self._match_languages(
+                job,
+                profile,
+            ),
+            self._match_experience(
+                job,
+                profile,
+            ),
         ]
 
         return MatchResult(
-            score=max(scores),
+            score=self._calculate_score(
+                scores,
+            ),
         )
-            
+        
+    def _calculate_score(
+        self,
+        scores: list[float],
+    ) -> float:
+
+        return max(scores)
+
     def _match_remote(
         self,
         job: JobOffer,
@@ -78,6 +99,67 @@ class JobMatchingService:
             return 0.0
 
         if job.salary.amount >= profile.salary.amount:
+            return 1.0
+
+        return 0.0
+    
+    def _match_skills(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> float:
+
+        required = set(
+            job.requirements.skills,
+        )
+
+        if not required:
+            return 0.0
+
+        candidate = set(
+            profile.skills,
+        )
+
+        matches = required & candidate
+
+        return len(matches) / len(required)
+    
+    def _match_languages(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> float:
+
+        required = {
+            language.language
+            for language in job.requirements.languages
+        }
+
+        if not required:
+            return 0.0
+
+        candidate = {
+            language.language
+            for language in profile.languages
+        }
+
+        matches = required & candidate
+
+        return len(matches) / len(required)
+    
+    def _match_experience(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> float:
+
+        if job.requirements.years_experience is None:
+            return 0.0
+
+        if profile.years_experience is None:
+            return 0.0
+
+        if profile.years_experience >= job.requirements.years_experience:
             return 1.0
 
         return 0.0

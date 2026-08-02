@@ -104,3 +104,17 @@ def test_candidate_profile_supports_preferences():
 
     assert profile.preferences.willing_to_relocate is True
     assert profile.preferences.willing_to_travel is False
+    
+def test_candidate_profile_supports_skills():
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+            "Docker",
+        ],
+    )
+
+    assert profile.skills == [
+        "Python",
+        "Docker",
+    ]

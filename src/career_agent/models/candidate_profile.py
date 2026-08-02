@@ -13,9 +13,10 @@ class CandidateProfile(BaseModel):
     model_config = ConfigDict(frozen=True)
     skills: list[str] = []
     languages: list[LanguageSkill] = []
-    experience: int = 0
+    years_experience: int = 0
     salary: SalaryExpectation | None = None
     preferred_remote_type: RemoteType | None = None
     preferred_countries: list[str] = []
     preferences: CandidatePreferences = CandidatePreferences()
+    skills: list[str] = []
     

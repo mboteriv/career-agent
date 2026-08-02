@@ -1,6 +1,8 @@
 from career_agent.models.candidate_profile import (
     CandidateProfile,
 )
+from career_agent.models.job_requirements import JobRequirements
+from career_agent.models.language_skill import LanguageSkill
 from career_agent.services.job_matching_service import (
     JobMatchingService,
 )
@@ -204,6 +206,160 @@ def test_match_scores_zero_when_candidate_has_no_salary_expectation():
             amount=70000,
         ),
     )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 0.0
+    
+def test_match_scores_one_when_all_skills_match():
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+            "Docker",
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+                "Docker",
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 1.0
+    
+def test_match_scores_partial_when_some_skills_match():
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+                "Docker",
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 0.5
+    
+def test_match_scores_zero_when_no_skills_match():
+
+    profile = CandidateProfile(
+        skills=[
+            "Java",
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 0.0
+    
+def test_match_scores_one_when_languages_match():
+
+    profile = CandidateProfile(
+        languages=[
+            LanguageSkill(
+                language="English",
+                level="B2",
+            ),
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            languages=[
+                LanguageSkill(
+                    language="English",
+                    level="C1",
+                ),
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 1.0
+    
+def test_match_scores_one_when_experience_matches():
+
+    profile = CandidateProfile(
+        years_experience=5,
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            years_experience=3,
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 1.0
+    
+def test_match_scores_zero_when_experience_is_insufficient():
+
+    profile = CandidateProfile(
+        years_experience=2,
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            years_experience=5,
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 0.0
+    
+def test_match_scores_zero_when_job_has_no_experience_requirement():
+
+    profile = CandidateProfile(
+        years_experience=10,
+    )
+
+    job = create_job_offer()
 
     result = JobMatchingService().match(
         job,
