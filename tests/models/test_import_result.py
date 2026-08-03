@@ -1,5 +1,5 @@
 from career_agent.models.import_result import ImportResult
-from career_agent.testing.factories import create_job_offer
+from tests.factories import create_job_offer
 import pytest
 
 

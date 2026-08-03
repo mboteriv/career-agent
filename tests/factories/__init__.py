@@ -1,0 +1,2 @@
+from .job_offer_factory import create_job_offer
+from .candidate_profile_factory import create_candidate_profile

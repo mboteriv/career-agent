@@ -7,7 +7,7 @@ from career_agent.providers.greenhouse_provider import greenhouse_provider
 from career_agent.repositories.job_offer_repository import (
     JobOfferRepository,
 )
-from career_agent.testing.factories import create_job_offer
+from tests.factories import create_job_offer
 from career_agent.models.enums import Source
 
 def test_import_jobs():

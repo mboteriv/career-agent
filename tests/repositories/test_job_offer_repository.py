@@ -8,7 +8,7 @@ from career_agent.models.enums import (
 from career_agent.models.job_offer import JobOffer
 from career_agent.models.job_search_criteria import JobSearchCriteria
 from career_agent.repositories.job_offer_repository import JobOfferRepository
-from career_agent.testing.factories import create_job_offer
+from tests.factories import create_job_offer
 from career_agent.models.job_sort_field import JobSortField
 from career_agent.models.salary_expectation import (
     SalaryExpectation,

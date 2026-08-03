@@ -6,7 +6,7 @@ from career_agent.models.language_skill import LanguageSkill
 from career_agent.services.job_matching_service import (
     JobMatchingService,
 )
-from career_agent.testing.factories import (
+from tests.factories import (
     create_job_offer,
 )
 from career_agent.models.salary_expectation import (

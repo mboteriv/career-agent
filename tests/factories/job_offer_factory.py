@@ -1,15 +1,15 @@
 from datetime import datetime
 
+from career_agent.models.enums import Source
 from career_agent.models.enums import (
     EmploymentType,
     RemoteType,
     Source,
 )
 from career_agent.models.job_offer import JobOffer
-from career_agent.models.job_requirements import JobRequirements
-
 
 def create_job_offer(**kwargs) -> JobOffer:
+
     data = {
         "id": "123",
         "source": Source.GREENHOUSE,
@@ -20,7 +20,6 @@ def create_job_offer(**kwargs) -> JobOffer:
         "location": "Málaga, Spain",
         "employment_type": EmploymentType.FULL_TIME,
         "remote_type": RemoteType.REMOTE,
-        "requirements": JobRequirements(),
         "created_at": datetime.now(),
     }
 

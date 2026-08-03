@@ -9,7 +9,7 @@ from career_agent.models.enums import (
     Source,
 )
 from career_agent.models.job_offer import JobOffer
-from career_agent.testing.factories import create_job_offer
+from tests.factories import create_job_offer
 from career_agent.models.salary_expectation import (
     SalaryExpectation,
 )

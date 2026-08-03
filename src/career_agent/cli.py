@@ -1,4 +1,7 @@
+from unittest import result
+
 import typer
+from career_agent.models.recommendation_options import RecommendationOptions
 from career_agent.providers.greenhouse_provider import (
     greenhouse_provider,
 )
@@ -9,6 +12,18 @@ from career_agent.models.job_search_criteria import JobSearchCriteria
 from career_agent.services.job_search_service import JobSearchService
 from career_agent.models.enums import RemoteType
 from career_agent.models.enums import EmploymentType
+from career_agent.models.recommendation_options import (
+    RecommendationOptions,
+)
+from career_agent.workflows.recommendation_workflow import (
+    RecommendationWorkflow,
+)
+from career_agent.models.match_result import MatchResult
+
+
+def _recommendation_workflow() -> RecommendationWorkflow:
+
+    return RecommendationWorkflow()
 
 
 app = typer.Typer(no_args_is_help=True)
@@ -87,6 +102,87 @@ def search(
     typer.echo()
 
     _print_jobs(jobs)
+    
+@app.command(
+    help="Recommend jobs for the current candidate profile.",
+)
+def recommend(
+    limit: int = typer.Option(
+        10,
+        "--limit",
+        min=1,
+        help="Maximum number of recommendations",
+    ),
+    min_score: float = typer.Option(
+        0.0,
+        "--min-score",
+        min=0.0,
+        max=1.0,
+        help="Minimum recommendation score",
+    ),
+):
+
+    workflow = _recommendation_workflow()
+
+    results = workflow.execute(
+        RecommendationOptions(
+            limit=limit,
+            min_score=min_score,
+        ),
+    )
+    for result in results:
+
+        _print_match_result(
+            result,
+        )
+    
+def _print_match_result(
+    result: MatchResult,
+) -> None:
+
+    typer.echo(
+        result.job.title,
+    )
+
+    typer.echo(
+        result.job.company_name,
+    )
+
+    typer.echo(
+        result.job.location,
+    )
+    
+    typer.echo(
+        result.job.url,
+    )
+
+    typer.echo()
+
+    typer.echo(
+        f"Score: {result.score:.0%}",
+    )
+
+    if result.matched_requirements:
+
+        typer.echo("Matched:")
+
+        for requirement in result.matched_requirements:
+
+            typer.echo(
+                f"  ✓ {requirement}",
+            )
+
+    if result.missing_requirements:
+
+        typer.echo("Missing:")
+
+        for requirement in result.missing_requirements:
+
+            typer.echo(
+                f"  ✗ {requirement}",
+            )
+
+    typer.echo()
 
 def _build_search_criteria(
     company: str | None,
@@ -124,7 +220,6 @@ def _print_jobs(
         typer.echo(f"  Location: {job.location}")
         typer.echo(f"  URL     : {job.url}")
         typer.echo("-" * 80)
-
 
 if __name__ == "__main__":
     app()

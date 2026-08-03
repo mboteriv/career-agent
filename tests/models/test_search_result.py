@@ -1,5 +1,5 @@
 from career_agent.models.search_result import SearchResult
-from career_agent.testing.factories import create_job_offer
+from tests.factories import create_job_offer
 
 
 def test_create_search_result():
