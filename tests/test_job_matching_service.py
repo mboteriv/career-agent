@@ -575,3 +575,318 @@ def test_find_criterion_match():
     )
 
     assert result.criterion == MatchingCriterion.SKILLS
+    
+def test_build_skills_criterion_match_is_not_applicable_when_no_skills_required():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[],
+        ),
+    )
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+        ],
+    )
+
+    result = service._build_skills_criterion_match(
+        job,
+        profile,
+    )
+
+    assert result.applicable is False
+    
+def test_build_skills_criterion_match_is_applicable_when_skills_required():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+            ],
+        ),
+    )
+
+    profile = CandidateProfile()
+
+    result = service._build_skills_criterion_match(
+        job,
+        profile,
+    )
+
+    assert result.applicable is True
+    
+def test_remote_criterion_is_applicable_when_candidate_has_preference():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        remote_type=RemoteType.REMOTE,
+    )
+
+    profile = CandidateProfile(
+        preferred_remote_type=RemoteType.REMOTE,
+    )
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.REMOTE,
+    )
+
+    assert result.applicable is True
+    
+def test_remote_criterion_is_not_applicable_when_candidate_has_no_preference():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        remote_type=RemoteType.REMOTE,
+    )
+
+    profile = CandidateProfile()
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.REMOTE,
+    )
+
+    assert result.applicable is False
+    
+def test_country_criterion_is_applicable_when_candidate_has_preferred_countries():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        location="Spain",
+    )
+
+    profile = CandidateProfile(
+        preferred_countries=[
+            "Spain",
+        ],
+    )
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.COUNTRY,
+    )
+
+    assert result.applicable is True
+    
+def test_country_criterion_is_not_applicable_when_candidate_has_no_preferred_countries():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        location="Spain",
+    )
+
+    profile = CandidateProfile()
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.COUNTRY,
+    )
+
+    assert result.applicable is False
+    
+def test_salary_criterion_is_applicable_when_candidate_and_job_have_salary():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        salary=SalaryExpectation(
+            amount=60000,
+        ),
+    )
+
+    profile = CandidateProfile(
+        salary=SalaryExpectation(
+            amount=50000,
+        ),
+    )
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.SALARY,
+    )
+
+    assert result.applicable is True
+    
+def test_salary_criterion_is_not_applicable_when_job_has_no_salary():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        salary=None,
+    )
+
+    profile = CandidateProfile(
+        salary=SalaryExpectation(
+            amount=50000,
+        ),
+    )
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.SALARY,
+    )
+
+    assert result.applicable is False
+    
+def test_salary_criterion_is_not_applicable_when_candidate_has_no_salary():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        salary=SalaryExpectation(
+         amount=60000,
+        ),
+    )
+
+    profile = CandidateProfile()
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.SALARY,
+    )
+
+    assert result.applicable is False
+    
+def test_salary_criterion_is_not_applicable_when_neither_has_salary():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        salary=None,
+    )
+
+    profile = CandidateProfile()
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.SALARY,
+    )
+
+    assert result.applicable is False
+    
+def test_languages_criterion_is_applicable_when_job_requires_languages():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            languages=[
+                LanguageSkill(
+                    language="English",
+                    level="B2",
+                ),
+            ],
+        ),
+    )
+
+    profile = CandidateProfile()
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.LANGUAGES,
+    )
+
+    assert result.applicable is True
+    
+def test_languages_criterion_is_not_applicable_when_job_requires_no_languages():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(),
+    )
+
+    profile = CandidateProfile()
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.LANGUAGES,
+    )
+
+    assert result.applicable is False
+    
+def test_experience_criterion_is_applicable_when_job_requires_experience():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            years_experience=3,
+        ),
+    )
+
+    profile = CandidateProfile(
+        years_experience=5,
+    )
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.EXPERIENCE,
+    )
+
+    assert result.applicable is True
+    
+def test_experience_criterion_is_not_applicable_when_job_requires_no_experience():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(),
+    )
+
+    profile = CandidateProfile(
+        years_experience=5,
+    )
+
+    result = service._find_criterion_match(
+        service._build_criterion_matches(
+            job,
+            profile,
+        ),
+        MatchingCriterion.EXPERIENCE,
+    )
+
+    assert result.applicable is False

@@ -84,3 +84,22 @@ def test_create_criterion_match_with_empty_requirements():
 
     assert result.matched == []
     assert result.missing == []
+    
+def test_create_criterion_match_is_applicable_by_default():
+
+    result = CriterionMatch(
+        criterion=MatchingCriterion.SKILLS,
+        score=1.0,
+    )
+
+    assert result.applicable is True
+    
+def test_create_criterion_match_with_non_applicable():
+
+    result = CriterionMatch(
+        criterion=MatchingCriterion.SKILLS,
+        score=0.0,
+        applicable=False,
+    )
+
+    assert result.applicable is False

@@ -14,13 +14,14 @@ class CriterionMatch(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-
+    explanation: str | None = None
+    
     criterion: MatchingCriterion
 
     score: float
 
-    explanation: str | None = None
-    
+    applicable: bool = True
+
     matched: list[str] = Field(
         default_factory=list,
     )

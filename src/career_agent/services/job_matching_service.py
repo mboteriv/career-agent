@@ -164,6 +164,10 @@ class JobMatchingService:
                     job,
                     profile,
                 ),
+                applicable=(
+                    profile.preferred_remote_type
+                    is not None
+                ),
             ),
             CriterionMatch(
                 criterion=MatchingCriterion.COUNTRY,
@@ -171,12 +175,19 @@ class JobMatchingService:
                     job,
                     profile,
                 ),
+                applicable=bool(
+                    profile.preferred_countries,
+                ),
             ),
             CriterionMatch(
                 criterion=MatchingCriterion.SALARY,
                 score=self._match_salary(
                     job,
                     profile,
+                ),
+                applicable=(
+                    profile.salary is not None
+                    and job.salary is not None
                 ),
             ),
             self._build_skills_criterion_match(
@@ -189,12 +200,19 @@ class JobMatchingService:
                     job,
                     profile,
                 ),
+                applicable=bool(
+                    job.requirements.languages,
+                ),
             ),
             CriterionMatch(
                 criterion=MatchingCriterion.EXPERIENCE,
                 score=self._match_experience(
                     job,
                     profile,
+                ),
+                applicable=(
+                    job.requirements.years_experience
+                    is not None
                 ),
             ),
         ]
@@ -311,6 +329,8 @@ class JobMatchingService:
             job: JobOffer,
             profile: CandidateProfile,
         ) -> CriterionMatch:
+
+            applicable = bool(job.requirements.skills)
     
             required, matched = self._skill_matches(
                 job,
@@ -327,6 +347,7 @@ class JobMatchingService:
             ),
             matched=list(matched),
             missing=list(missing),
+            applicable=applicable,
         )
             
     def _build_explanations(
@@ -433,3 +454,5 @@ class JobMatchingService:
         raise ValueError(
             f"Unknown criterion: {criterion}",
         )
+        
+    
