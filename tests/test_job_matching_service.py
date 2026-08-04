@@ -1,3 +1,5 @@
+from unittest import result
+
 from career_agent.models.candidate_profile import (
     CandidateProfile,
 )
@@ -13,6 +15,8 @@ from career_agent.models.salary_expectation import (
     SalaryExpectation,
 )
 from career_agent.models.enums import RemoteType
+from career_agent.models.criterion_match import CriterionMatch
+from career_agent.models.matching_criterion import MatchingCriterion
 
 def test_match_returns_score():
 
@@ -430,3 +434,144 @@ def test_match_result_contains_missing_skills():
     assert "Python" in result.matched_requirements
     assert "Docker" in result.missing_requirements
     
+def test_build_criterion_matches():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        description="Python required.",
+    )
+
+    profile = CandidateProfile(
+        skills=["Python"],
+    )
+
+    results = service._build_criterion_matches(
+        job,
+        profile,
+    )
+
+    assert len(results) == 6
+
+    assert all(
+        isinstance(
+            result,
+            CriterionMatch,
+        )
+        for result in results
+    )
+
+    assert results[0].criterion == MatchingCriterion.REMOTE
+    assert results[1].criterion == MatchingCriterion.COUNTRY
+    assert results[2].criterion == MatchingCriterion.SALARY
+    assert results[3].criterion == MatchingCriterion.SKILLS
+    assert results[4].criterion == MatchingCriterion.LANGUAGES
+    assert results[5].criterion == MatchingCriterion.EXPERIENCE
+    
+def test_skill_matches_returns_required_and_matched_skills():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+                "Docker",
+            ],
+        ),
+    )
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+            "Git",
+        ],
+    )
+
+    required, matched = service._skill_matches(
+        job,
+        profile,
+    )
+
+    assert required == {
+        "Python",
+        "Docker",
+    }
+
+    assert matched == {
+        "Python",
+    }
+    
+def test_build_skills_criterion_match():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+                "Docker",
+            ],
+        ),
+    )
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+            "Git",
+        ],
+    )
+
+    result = service._build_skills_criterion_match(
+        job,
+        profile,
+    )
+
+    assert result.criterion == MatchingCriterion.SKILLS
+    assert result.score == 0.5
+    
+def test_build_skills_criterion_match_contains_explanations():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            skills=[
+                "Python",
+                "Docker",
+            ],
+        ),
+    )
+
+    profile = CandidateProfile(
+        skills=[
+            "Python",
+            "Git",
+        ],
+    )
+
+    result = service._build_skills_criterion_match(
+        job,
+        profile,
+    )
+
+    assert set(result.matched) == {"Python"}
+    assert set(result.missing) == {"Docker"}
+    
+def test_find_criterion_match():
+
+    service = JobMatchingService()
+
+    criterion_matches = [
+        CriterionMatch(
+            criterion=MatchingCriterion.SKILLS,
+            score=1.0,
+        ),
+    ]
+
+    result = service._find_criterion_match(
+        criterion_matches,
+        MatchingCriterion.SKILLS,
+    )
+
+    assert result.criterion == MatchingCriterion.SKILLS
