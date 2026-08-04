@@ -7,9 +7,14 @@ from career_agent.models.criterion_match import CriterionMatch
 from career_agent.models.matching_criterion import MatchingCriterion
 from career_agent.models.job_offer import JobOffer
 from career_agent.models.match_result import MatchResult
+from career_agent.services.matching_score_calculator import MatchingScoreCalculator
 
 
 class JobMatchingService:
+    
+    def __init__(self):
+
+        self._score_calculator = MatchingScoreCalculator()
 
     def match(
         self,
@@ -37,15 +42,6 @@ class JobMatchingService:
             matched,
             missing,
         )
-        
-        
-        
-    def _calculate_score(
-        self,
-        scores: list[float],
-    ) -> float:
-
-        return max(scores)
 
     def _match_remote(
         self,
@@ -416,9 +412,9 @@ class JobMatchingService:
 
         return MatchResult(
             job=job,
-            score=self._calculate_score(
+            score=self._score_calculator.calculate(
                 scores,
-            ),
+        ),
             matched_requirements=matched,
             missing_requirements=missing,
         )
