@@ -102,3 +102,83 @@ def test_calculate_ignores_non_applicable_criteria():
     )
 
     assert result == 1.0
+    
+def test_calculate_returns_zero_when_required_criterion_fails():
+
+    calculator = MatchingScoreCalculator()
+
+    result = calculator.calculate(
+        [
+            CriterionMatch(
+                criterion=MatchingCriterion.SKILLS,
+                score=0.0,
+                applicable=True,
+            ),
+            CriterionMatch(
+                criterion=MatchingCriterion.EXPERIENCE,
+                score=1.0,
+                applicable=True,
+            ),
+        ],
+        MatchingPolicy(
+            required_criteria=frozenset({
+                MatchingCriterion.SKILLS,
+            }),
+        ),
+    )
+
+    assert result == 0.0
+    
+def test_calculate_uses_weighted_average_when_required_criterion_passes():
+
+    calculator = MatchingScoreCalculator()
+
+    result = calculator.calculate(
+        [
+            CriterionMatch(
+                criterion=MatchingCriterion.SKILLS,
+                score=1.0,
+                applicable=True,
+            ),
+            CriterionMatch(
+                criterion=MatchingCriterion.EXPERIENCE,
+                score=0.5,
+                applicable=True,
+            ),
+        ],
+        MatchingPolicy(
+            required_criteria=frozenset({
+                MatchingCriterion.SKILLS,
+            }),
+        ),
+    )
+
+    assert result == pytest.approx(
+        0.7857142857142857,
+    )
+    
+def test_non_applicable_required_criterion_does_not_block():
+
+    calculator = MatchingScoreCalculator()
+
+    result = calculator.calculate(
+        [
+            CriterionMatch(
+                criterion=MatchingCriterion.SALARY,
+                score=0.0,
+                applicable=False,
+            ),
+            CriterionMatch(
+                criterion=MatchingCriterion.SKILLS,
+                score=1.0,
+                applicable=True,
+            ),
+        ],
+        MatchingPolicy(
+            required_criteria=frozenset({
+                MatchingCriterion.SALARY,
+            }),
+        ),
+    )
+
+    assert result == 1.0

@@ -7,6 +7,18 @@ class MatchingScoreCalculator:
         criterion_matches: list[CriterionMatch],
         policy: MatchingPolicy,
     ) -> float:
+        
+        for criterion_match in criterion_matches:
+
+            if not criterion_match.applicable:
+                continue
+
+            if (
+                criterion_match.criterion
+                in policy.required_criteria
+                and criterion_match.score == 0.0
+            ):
+                return 0.0
 
         weighted_sum = 0.0
 

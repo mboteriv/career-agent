@@ -59,3 +59,23 @@ def test_returns_default_weights():
         )
         == 1.0
     )
+    
+def test_required_criteria_is_empty_by_default():
+
+    policy = MatchingPolicy()
+
+    assert policy.required_criteria == frozenset()
+    
+def test_required_criteria_can_be_configured():
+
+    policy = MatchingPolicy(
+        required_criteria=frozenset({
+            MatchingCriterion.SKILLS,
+            MatchingCriterion.LANGUAGES,
+        }),
+    )
+
+    assert policy.required_criteria == frozenset({
+        MatchingCriterion.SKILLS,
+        MatchingCriterion.LANGUAGES,
+    })

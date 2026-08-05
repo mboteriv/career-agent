@@ -103,3 +103,4 @@ def test_create_criterion_match_with_non_applicable():
     )
 
     assert result.applicable is False
+    

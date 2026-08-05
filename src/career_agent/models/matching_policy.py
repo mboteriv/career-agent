@@ -17,6 +17,10 @@ class MatchingPolicy(BaseModel):
     remote_weight: float = 1.0
     country_weight: float = 1.0
     
+    required_criteria: frozenset[
+        MatchingCriterion
+    ] = frozenset()
+    
     def weight_for(
         self,
         criterion: MatchingCriterion,
