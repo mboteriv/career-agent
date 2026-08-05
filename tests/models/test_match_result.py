@@ -93,7 +93,7 @@ def test_match_result_contains_matched_languages():
         languages=[
             LanguageSkill(
                 language="English",
-                level="B2",
+                level="C1",
             ),
         ],
     )
@@ -103,7 +103,7 @@ def test_match_result_contains_matched_languages():
             languages=[
                 LanguageSkill(
                     language="English",
-                    level="C1",
+                    level="B2",
                 ),
             ],
         ),

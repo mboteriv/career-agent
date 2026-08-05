@@ -9,6 +9,9 @@ from career_agent.models.job_offer import JobOffer
 from career_agent.models.match_result import MatchResult
 from career_agent.services.matching_score_calculator import MatchingScoreCalculator
 from career_agent.models.matching_policy import MatchingPolicy
+from career_agent.models.language_levels import (
+    LANGUAGE_LEVELS,
+)
 
 
 class JobMatchingService:
@@ -630,19 +633,33 @@ class JobMatchingService:
         set[str],
         set[str],
     ]:
-        required = {
-            language.language
-            for language
-            in job.requirements.languages
-        }
+        candidate_languages = self._candidate_languages(
+            profile,
+        )
 
-        candidate = {
-            language.language
-            for language
-            in profile.languages
-        }
+        required = set()
+        matched = set()
 
-        matched = required & candidate
+        for language in job.requirements.languages:
+
+            required.add(
+                language.language,
+            )
+
+            candidate_level = candidate_languages.get(
+                language.language,
+            )
+
+            if candidate_level is None:
+                continue
+
+            if self._language_level_matches(
+                candidate_level,
+                language.level,
+            ):
+                matched.add(
+                    language.language,
+                )
 
         return (
             required,
@@ -659,3 +676,36 @@ class JobMatchingService:
             return 0.0
 
         return len(matched) / len(required)
+    
+    def _language_level_matches(
+        self,
+        candidate_level: str,
+        required_level: str,
+    ) -> bool:
+
+        candidate = LANGUAGE_LEVELS.get(
+            candidate_level,
+        )
+
+        required = LANGUAGE_LEVELS.get(
+            required_level,
+        )
+
+        if (
+            candidate is None
+            or required is None
+        ):
+            return False
+
+        return candidate >= required
+    
+    def _candidate_languages(
+        self,
+        profile: CandidateProfile,
+    ) -> dict[str, str]:
+
+        return {
+            language.language: language.level
+            for language
+            in profile.languages
+        }

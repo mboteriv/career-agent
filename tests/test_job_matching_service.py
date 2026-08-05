@@ -297,7 +297,7 @@ def test_match_scores_one_when_languages_match():
         languages=[
             LanguageSkill(
                 language="English",
-                level="B2",
+                level="C1",
             ),
         ],
     )
@@ -307,7 +307,7 @@ def test_match_scores_one_when_languages_match():
             languages=[
                 LanguageSkill(
                     language="English",
-                    level="C1",
+                    level="B2",
                 ),
             ],
         ),
@@ -933,3 +933,96 @@ def test_language_matches_returns_required_and_matched_languages():
     assert matched == {
         "English",
     }
+    
+def test_language_matches_when_candidate_level_is_higher():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            languages=[
+                LanguageSkill(
+                    language="English",
+                    level="B2",
+                ),
+            ],
+        ),
+    )
+
+    profile = CandidateProfile(
+        languages=[
+            LanguageSkill(
+                language="English",
+                level="C1",
+            ),
+        ],
+    )
+
+    required, matched = service._language_matches(
+        job,
+        profile,
+    )
+
+    assert required == {"English"}
+    assert matched == {"English"}
+    
+def test_language_does_not_match_when_candidate_level_is_lower():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            languages=[
+                LanguageSkill(
+                    language="English",
+                    level="C1",
+                ),
+            ],
+        ),
+    )
+
+    profile = CandidateProfile(
+        languages=[
+            LanguageSkill(
+                language="English",
+                level="B2",
+            ),
+        ],
+    )
+
+    required, matched = service._language_matches(
+        job,
+        profile,
+    )
+
+    assert required == {"English"}
+    assert matched == set()
+    
+def test_match_scores_zero_when_language_level_is_insufficient():
+
+    profile = CandidateProfile(
+        languages=[
+            LanguageSkill(
+                language="English",
+                level="B2",
+            ),
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            languages=[
+                LanguageSkill(
+                    language="English",
+                    level="C1",
+                ),
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == 0.0
