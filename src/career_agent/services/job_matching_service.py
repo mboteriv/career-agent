@@ -31,10 +31,10 @@ class JobMatchingService:
             profile,
         )
 
-        matched, missing = self._build_explanations(
-            job,
-            profile,
+        matched, missing = (
+            self._build_requirements_summary(
             criterion_matches,
+            )
         )
         
         return self._build_match_result(
@@ -103,13 +103,9 @@ class JobMatchingService:
             profile,
         )
 
-        if not required:
-            return 0.0
-
-        return len(
-            matched,
-        ) / len(
+        return self._match_ratio(
             required,
+            matched,
         )
     
     def _match_languages(
@@ -118,22 +114,15 @@ class JobMatchingService:
         profile: CandidateProfile,
     ) -> float:
 
-        required = {
-            language.language
-            for language in job.requirements.languages
-        }
+        required, matched = self._language_matches(
+            job,
+            profile,
+        )
 
-        if not required:
-            return 0.0
-
-        candidate = {
-            language.language
-            for language in profile.languages
-        }
-
-        matches = required & candidate
-
-        return len(matches) / len(required)
+        return self._match_ratio(
+            required,
+            matched,
+        )
     
     def _match_experience(
         self,
@@ -307,16 +296,18 @@ class JobMatchingService:
 
             missing = required - matched
 
+            score = self._match_ratio(
+                required,
+                matched,
+            )
+
             return CriterionMatch(
                 criterion=MatchingCriterion.SKILLS,
-                score=self._match_skills(
-                job,
-                profile,
-            ),
-            matched=list(matched),
-            missing=list(missing),
-            applicable=applicable,
-        )
+                score=score,
+                matched=sorted(matched),
+                missing=sorted(missing),
+                applicable=applicable,
+            )
             
     def _build_explanations(
         self,
@@ -445,27 +436,47 @@ class JobMatchingService:
                 criterion_match.missing
             )
 
-            return (
-                matched,
-                missing,
-            )
+        return (
+            matched,
+            missing,
+        )
             
     def _build_remote_criterion_match(
         self,
         job: JobOffer,
         profile: CandidateProfile,
     ) -> CriterionMatch:
+                
+        score = self._match_remote(
+            job,
+            profile,
+        )
+        
+        applicable = (
+            profile.preferred_remote_type
+            is not None
+        )
+        
+        matched = []
+        missing = []
+
+        if applicable:
+
+            if score == 1.0:
+                matched.append(
+                    "Remote",
+                )
+            else:
+                missing.append(
+                    "Remote",
+                )
 
         return CriterionMatch(
             criterion=MatchingCriterion.REMOTE,
-            score=self._match_remote(
-                job,
-                profile,
-            ),
-            applicable=(
-                profile.preferred_remote_type
-                is not None
-            ),
+            score=score,
+            applicable=applicable,
+            matched=matched,
+            missing=missing,
         )
         
     def _build_country_criterion_match(
@@ -474,15 +485,35 @@ class JobMatchingService:
         profile: CandidateProfile,
     ) -> CriterionMatch:
 
+        score = self._match_country(
+            job,
+            profile,
+        )
+
+        applicable = bool(
+            profile.preferred_countries,
+        )
+
+        matched = []
+        missing = []
+
+        if applicable:
+
+            if score == 1.0:
+                matched.append(
+                    "Country",
+                )
+            else:
+                missing.append(
+                    "Country",
+                )
+
         return CriterionMatch(
             criterion=MatchingCriterion.COUNTRY,
-            score=self._match_country(
-                job,
-                profile,
-            ),
-            applicable=bool(
-                profile.preferred_countries,
-            ),
+            score=score,
+            applicable=applicable,
+            matched=matched,
+            missing=missing,
         )
         
     def _build_salary_criterion_match(
@@ -491,33 +522,66 @@ class JobMatchingService:
         profile: CandidateProfile,
     ) -> CriterionMatch:
 
+        score = self._match_salary(
+            job,
+            profile,
+        )
+
+        applicable = (
+            profile.salary is not None
+            and job.salary is not None
+        )
+
+        matched = []
+        missing = []
+
+        if applicable:
+
+            if score == 1.0:
+                matched.append(
+                    "Salary",
+                )
+            else:
+                missing.append(
+                    "Salary",
+                )
+
         return CriterionMatch(
-            criterion=MatchingCriterion.SALARY,
-            score=self._match_salary(
-                job,
-                profile,
-            ),
-            applicable=(
-                profile.salary is not None
-                and job.salary is not None
-            ),
+        criterion=MatchingCriterion.SALARY,
+        score=score,
+        applicable=applicable,
+        matched=matched,
+        missing=missing,
         )
         
     def _build_languages_criterion_match(
         self,
         job: JobOffer,
         profile: CandidateProfile,
-    ) -> CriterionMatch:
+    )-> CriterionMatch:
+
+        applicable = bool(
+            job.requirements.languages,
+        )
+
+        required, matched = self._language_matches(
+            job,
+            profile,
+        )
+
+        missing = required - matched
+
+        score = self._match_ratio(
+            required,
+            matched,
+        )
 
         return CriterionMatch(
             criterion=MatchingCriterion.LANGUAGES,
-            score=self._match_languages(
-                job,
-                profile,
-            ),
-            applicable=bool(
-                job.requirements.languages,
-            ),
+            score=score,
+            matched=sorted(matched),
+            missing=sorted(missing),
+            applicable=applicable,
         )
     
     def _build_experience_criterion_match(
@@ -526,14 +590,72 @@ class JobMatchingService:
         profile: CandidateProfile,
     ) -> CriterionMatch:
 
+        score = self._match_experience(
+            job,
+            profile,
+        )
+
+        applicable = (
+            job.requirements.years_experience
+            is not None
+        )
+
+        matched = []
+        missing = []
+
+        if applicable:
+
+            if score == 1.0:
+                matched.append(
+                    "Experience",
+                )
+            else:
+                missing.append(
+                    "Experience",
+                )
+
         return CriterionMatch(
             criterion=MatchingCriterion.EXPERIENCE,
-            score=self._match_experience(
-                job,
-                profile,
-            ),
-            applicable=(
-                job.requirements.years_experience
-                is not None
-            ),
+            score=score,
+            applicable=applicable,
+            matched=matched,
+            missing=missing,
         )
+        
+    def _language_matches(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> tuple[
+        set[str],
+        set[str],
+    ]:
+        required = {
+            language.language
+            for language
+            in job.requirements.languages
+        }
+
+        candidate = {
+            language.language
+            for language
+            in profile.languages
+        }
+
+        matched = required & candidate
+
+        return (
+            required,
+            matched,
+        )
+        
+    def _match_ratio(
+        self,
+        required: set[str],
+        matched: set[str],
+    ) -> float:
+
+        if not required:
+            return 0.0
+
+        return len(matched) / len(required)

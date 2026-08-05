@@ -891,3 +891,45 @@ def test_experience_criterion_is_not_applicable_when_job_requires_no_experience(
     )
 
     assert result.applicable is False
+    
+def test_language_matches_returns_required_and_matched_languages():
+
+    service = JobMatchingService()
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            languages=[
+                LanguageSkill(
+                    language="English",
+                    level="B2",
+                ),
+                LanguageSkill(
+                    language="Spanish",
+                    level="C1",
+                ),
+            ],
+        ),
+    )
+
+    profile = CandidateProfile(
+        languages=[
+            LanguageSkill(
+                language="English",
+                level="C2",
+            ),
+        ],
+    )
+
+    required, matched = service._language_matches(
+        job,
+        profile,
+    )
+
+    assert required == {
+        "English",
+        "Spanish",
+    }
+
+    assert matched == {
+        "English",
+    }
