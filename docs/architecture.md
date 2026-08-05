@@ -1,1 +1,9 @@
-
+CLI
+    │
+Workflows
+    │
+Services
+    │
+Repositories
+    │
+Models
