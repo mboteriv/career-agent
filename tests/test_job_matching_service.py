@@ -1,4 +1,5 @@
 from unittest import result
+import pytest
 
 from career_agent.models.candidate_profile import (
     CandidateProfile,
@@ -339,10 +340,10 @@ def test_match_scores_one_when_experience_matches():
 
     assert result.score == 1.0
     
-def test_match_scores_zero_when_experience_is_insufficient():
+def test_match_scores_one_when_experience_exceeds_requirement():
 
     profile = CandidateProfile(
-        years_experience=2,
+        years_experience=8,
     )
 
     job = create_job_offer(
@@ -356,7 +357,49 @@ def test_match_scores_zero_when_experience_is_insufficient():
         profile,
     )
 
-    assert result.score == 0.0
+    assert result.score == 1.0
+    
+def test_match_scores_zero_when_experience_is_insufficient():
+
+    profile = CandidateProfile(
+        years_experience=4,
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            years_experience=5,
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == pytest.approx(
+        0.8,
+    )
+    
+def test_match_scores_half_when_candidate_has_half_required_experience():
+
+    profile = CandidateProfile(
+        years_experience=3,
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            years_experience=6,
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    assert result.score == pytest.approx(
+        0.5,
+    )
     
 def test_match_scores_zero_when_job_has_no_experience_requirement():
 

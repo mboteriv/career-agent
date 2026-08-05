@@ -133,16 +133,21 @@ class JobMatchingService:
         profile: CandidateProfile,
     ) -> float:
 
-        if job.requirements.years_experience is None:
+        required = job.requirements.years_experience
+
+        if required is None:
             return 0.0
 
         if profile.years_experience is None:
             return 0.0
 
-        if profile.years_experience >= job.requirements.years_experience:
+        if required == 0:
             return 1.0
 
-        return 0.0
+        return min(
+            profile.years_experience / required,
+            1.0,
+        )
     
     def _build_criterion_matches(
         self,
