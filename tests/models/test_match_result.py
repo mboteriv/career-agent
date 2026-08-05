@@ -1,4 +1,5 @@
 from career_agent.models.candidate_profile import CandidateProfile
+from career_agent.models.criterion_match import CriterionMatch
 from career_agent.models.enums import RemoteType
 from career_agent.models.job_requirements import JobRequirements
 from career_agent.models.language_skill import LanguageSkill
@@ -6,6 +7,7 @@ from career_agent.models.match_result import MatchResult
 import pytest
 from pydantic import ValidationError
 
+from career_agent.models.matching_criterion import MatchingCriterion
 from career_agent.services.job_matching_service import JobMatchingService
 from tests.factories import create_job_offer
 from career_agent.models.salary_expectation import (
@@ -222,3 +224,27 @@ def test_match_result_contains_missing_salary():
     )
 
     assert "Salary" in result.missing_requirements
+    
+def test_match_result_contains_criterion_matches():
+
+    criterion_matches = [
+        CriterionMatch(
+            criterion=MatchingCriterion.SKILLS,
+            score=1.0,
+            matched=[
+                "Python",
+            ],
+        ),
+    ]
+
+    result = MatchResult(
+        job=create_job_offer(),
+        score=1.0,
+        criterion_matches=criterion_matches,
+        matched_requirements=[
+            "Python",
+        ],
+        missing_requirements=[],
+    )
+
+    assert result.criterion_matches == criterion_matches

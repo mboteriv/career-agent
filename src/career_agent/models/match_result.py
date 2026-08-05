@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
+from career_agent.models.criterion_match import CriterionMatch
 from career_agent.models.job_offer import JobOffer
 from pydantic import Field
 
@@ -14,3 +15,4 @@ class MatchResult(BaseModel):
     
     matched_requirements: list[str] = Field(default_factory=list)
     missing_requirements: list[str] = Field(default_factory=list)
+    criterion_matches: list[CriterionMatch] = []

@@ -32,9 +32,9 @@ class JobMatchingService:
         )
 
         matched, missing = self._build_explanations(
-        job,
-        profile,
-        criterion_matches,
+            job,
+            profile,
+            criterion_matches,
         )
         
         return self._build_match_result(
@@ -159,62 +159,29 @@ class JobMatchingService:
     ) -> list[CriterionMatch]:
 
         return [
-            CriterionMatch(
-                criterion=MatchingCriterion.REMOTE,
-                score=self._match_remote(
-                    job,
-                    profile,
-                ),
-                applicable=(
-                    profile.preferred_remote_type
-                    is not None
-                ),
+            self._build_remote_criterion_match(
+                job,
+                profile,
             ),
-            CriterionMatch(
-                criterion=MatchingCriterion.COUNTRY,
-                score=self._match_country(
-                    job,
-                    profile,
-                ),
-                applicable=bool(
-                    profile.preferred_countries,
-                ),
+            self._build_country_criterion_match(
+                job,
+                profile,
             ),
-            CriterionMatch(
-                criterion=MatchingCriterion.SALARY,
-                score=self._match_salary(
-                    job,
-                    profile,
-                ),
-                applicable=(
-                    profile.salary is not None
-                    and job.salary is not None
-                ),
+            self._build_salary_criterion_match(
+                job,
+                profile,
             ),
             self._build_skills_criterion_match(
                 job,
                 profile,
             ),
-            CriterionMatch(
-                criterion=MatchingCriterion.LANGUAGES,
-                score=self._match_languages(
-                    job,
-                    profile,
-                ),
-                applicable=bool(
-                    job.requirements.languages,
-                ),
+            self._build_languages_criterion_match(
+                job,
+                profile,
             ),
-            CriterionMatch(
-                criterion=MatchingCriterion.EXPERIENCE,
-                score=self._match_experience(
-                    job,
-                    profile,
-                ),
-                applicable=(
-                    job.requirements.years_experience
-                    is not None
-                ),
+            self._build_experience_criterion_match(
+                job,
+                profile,
             ),
         ]
     
@@ -437,7 +404,8 @@ class JobMatchingService:
             score=self._score_calculator.calculate(
                 criterion_matches,
                 MatchingPolicy(),
-        ),
+            ),
+            criterion_matches=criterion_matches,
             matched_requirements=matched,
             missing_requirements=missing,
         )
@@ -457,4 +425,115 @@ class JobMatchingService:
             f"Unknown criterion: {criterion}",
         )
         
+    def _build_requirements_summary(
+        self,
+        criterion_matches: list[CriterionMatch],
+    ) -> tuple[
+        list[str],
+        list[str],
+    ]:
+        matched = []
+        missing = []
+
+        for criterion_match in criterion_matches:
+
+            matched.extend(
+                criterion_match.matched
+            )
+
+            missing.extend(
+                criterion_match.missing
+            )
+
+            return (
+                matched,
+                missing,
+            )
+            
+    def _build_remote_criterion_match(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> CriterionMatch:
+
+        return CriterionMatch(
+            criterion=MatchingCriterion.REMOTE,
+            score=self._match_remote(
+                job,
+                profile,
+            ),
+            applicable=(
+                profile.preferred_remote_type
+                is not None
+            ),
+        )
+        
+    def _build_country_criterion_match(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> CriterionMatch:
+
+        return CriterionMatch(
+            criterion=MatchingCriterion.COUNTRY,
+            score=self._match_country(
+                job,
+                profile,
+            ),
+            applicable=bool(
+                profile.preferred_countries,
+            ),
+        )
+        
+    def _build_salary_criterion_match(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> CriterionMatch:
+
+        return CriterionMatch(
+            criterion=MatchingCriterion.SALARY,
+            score=self._match_salary(
+                job,
+                profile,
+            ),
+            applicable=(
+                profile.salary is not None
+                and job.salary is not None
+            ),
+        )
+        
+    def _build_languages_criterion_match(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> CriterionMatch:
+
+        return CriterionMatch(
+            criterion=MatchingCriterion.LANGUAGES,
+            score=self._match_languages(
+                job,
+                profile,
+            ),
+            applicable=bool(
+                job.requirements.languages,
+            ),
+        )
     
+    def _build_experience_criterion_match(
+        self,
+        job: JobOffer,
+        profile: CandidateProfile,
+    ) -> CriterionMatch:
+
+        return CriterionMatch(
+            criterion=MatchingCriterion.EXPERIENCE,
+            score=self._match_experience(
+                job,
+                profile,
+            ),
+            applicable=(
+                job.requirements.years_experience
+                is not None
+            ),
+        )
