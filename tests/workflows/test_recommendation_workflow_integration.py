@@ -14,6 +14,7 @@ from tests.factories import (
     create_candidate_profile,
     create_job_offer,
 )
+from career_agent.models.matching_policy import MatchingPolicy
 
 
 def test_workflow_recommends_jobs_from_persisted_data():

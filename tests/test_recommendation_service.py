@@ -7,6 +7,7 @@ from career_agent.services.job_matching_service import (
 )
 from career_agent.services.recommendation_service import RecommendationService
 from tests.factories import create_job_offer
+from career_agent.models.matching_policy import MatchingPolicy
 
 
 def test_recommend_returns_one_result_per_job():

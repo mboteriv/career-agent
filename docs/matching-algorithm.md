@@ -194,49 +194,62 @@ A job with one perfectly matching criterion obtained the maximum score even if a
 
 ---
 
-## Current architecture
+## Current Scoring Algorithm
 
-The project now separates:
+The current implementation calculates a weighted average over all applicable criteria.
 
-- evaluation
-- policy
-- score calculation
+Only applicable criteria participate in the final score.
 
-This architectural change allows the scoring algorithm to evolve independently.
-
----
-
-## Planned evolution
-
-The next version of the algorithm will compute a weighted average over applicable criteria.
+Each criterion contributes proportionally to its configured weight.
 
 Pseudo-code:
 
 ```
-weighted_score = 0
+weighted_sum = 0
 total_weight = 0
 
-for criterion in criterion_matches:
+for criterion_match in criterion_matches:
 
-    if not criterion.applicable:
+    if not criterion_match.applicable:
         continue
 
-    weight = policy.weight_for(criterion.criterion)
+    weight = policy.weight_for(
+        criterion_match.criterion,
+    )
 
-    weighted_score += criterion.score * weight
+    weighted_sum += (
+        criterion_match.score * weight
+    )
+
     total_weight += weight
 
-return weighted_score / total_weight
+if total_weight == 0:
+    return 0
+
+return weighted_sum / total_weight
 ```
 
 This approach has several advantages:
 
-- criteria that do not apply never penalize the result;
-- more important criteria have a greater influence;
-- the algorithm becomes transparent and explainable;
-- new criteria can be added with minimal changes.
+- criteria without sufficient information do not penalize the final result;
+- more important criteria have greater influence on the score;
+- the scoring policy is independent from the evaluation logic;
+- new criteria can be introduced with minimal changes.
 
----
+## Why a Weighted Average?
+
+Earlier versions of the project selected the highest individual criterion score.
+
+Although simple, this approach ignored the overall quality of the match and could overestimate compatibility.
+
+For example, a candidate with one perfectly matching criterion and several poor matches could still receive the highest possible score.
+
+The weighted-average approach evaluates the complete candidate profile while allowing more important criteria to contribute more strongly than others.
+
+This produces a score that better reflects the overall compatibility between a candidate and a job offer.
+
+The current implementation exposes a `weight_for()` method so that the score calculator remains independent from the internal representation of the policy.
+
 
 # Design Goals
 

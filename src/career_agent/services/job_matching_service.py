@@ -8,6 +8,7 @@ from career_agent.models.matching_criterion import MatchingCriterion
 from career_agent.models.job_offer import JobOffer
 from career_agent.models.match_result import MatchResult
 from career_agent.services.matching_score_calculator import MatchingScoreCalculator
+from career_agent.models.matching_policy import MatchingPolicy
 
 
 class JobMatchingService:
@@ -434,7 +435,8 @@ class JobMatchingService:
         return MatchResult(
             job=job,
             score=self._score_calculator.calculate(
-                scores,
+                criterion_matches,
+                MatchingPolicy(),
         ),
             matched_requirements=matched,
             missing_requirements=missing,

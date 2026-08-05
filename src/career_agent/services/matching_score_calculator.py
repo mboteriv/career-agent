@@ -4,10 +4,33 @@ class MatchingScoreCalculator:
 
     def calculate(
         self,
-        scores: list[float],
+        criterion_matches: list[CriterionMatch],
+        policy: MatchingPolicy,
     ) -> float:
 
-        if not scores:
+        weighted_sum = 0.0
+
+        total_weight = 0.0
+
+        for criterion_match in criterion_matches:
+
+            if not criterion_match.applicable:
+                continue
+
+            weight = policy.weight_for(
+                criterion_match.criterion,
+            )
+
+            weighted_sum += (
+                criterion_match.score * weight
+            )
+
+            total_weight += weight
+
+        if total_weight == 0:
             return 0.0
 
-        return max(scores)
+        return (
+            weighted_sum
+            / total_weight
+        )

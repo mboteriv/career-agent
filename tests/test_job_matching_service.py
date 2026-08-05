@@ -17,6 +17,7 @@ from career_agent.models.salary_expectation import (
 from career_agent.models.enums import RemoteType
 from career_agent.models.criterion_match import CriterionMatch
 from career_agent.models.matching_criterion import MatchingCriterion
+from career_agent.models.matching_policy import MatchingPolicy
 
 def test_match_returns_score():
 
