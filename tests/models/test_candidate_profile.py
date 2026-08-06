@@ -4,6 +4,9 @@ from pydantic import ValidationError
 from career_agent.models.candidate_profile import (
     CandidateProfile,
 )
+from career_agent.models.professional_profile import (
+    ProfessionalProfile,
+)
 from career_agent.models.language_skill import LanguageSkill
 from career_agent.models.salary_expectation import SalaryExpectation
 from career_agent.models.enums import RemoteType
@@ -118,3 +121,21 @@ def test_candidate_profile_supports_skills():
         "Python",
         "Docker",
     ]
+    
+def test_create_candidate_profile_contains_professional_profile():
+
+    profile = CandidateProfile()
+
+    assert isinstance(
+        profile.professional_profile,
+        ProfessionalProfile,
+    )
+    
+def test_create_candidate_profile_contains_preferences():
+
+    profile = CandidateProfile()
+
+    assert isinstance(
+        profile.preferences,
+        CandidatePreferences,
+    )

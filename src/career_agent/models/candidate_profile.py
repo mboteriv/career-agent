@@ -1,6 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
+from career_agent.models.professional_profile import (
+    ProfessionalProfile,
+)
 from career_agent.models.language_skill import LanguageSkill
+
 from career_agent.models.salary_expectation import SalaryExpectation
 from career_agent.models.enums import RemoteType
 from career_agent.models.candidate_preferences import (
@@ -19,4 +23,10 @@ class CandidateProfile(BaseModel):
     preferred_countries: list[str] = []
     preferences: CandidatePreferences = CandidatePreferences()
     skills: list[str] = []
+    professional_profile: ProfessionalProfile = Field(
+        default_factory=ProfessionalProfile,
+    )
+    preferences: CandidatePreferences = Field(
+        default_factory=CandidatePreferences,
+    )
     

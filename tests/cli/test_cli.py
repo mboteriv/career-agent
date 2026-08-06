@@ -8,6 +8,7 @@ from career_agent.models.recommendation_options import (
 from tests.factories import create_job_offer
 
 
+
 runner = CliRunner()
 
 
