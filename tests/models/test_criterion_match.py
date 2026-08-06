@@ -26,24 +26,6 @@ def test_criterion_match_is_immutable():
     with pytest.raises(Exception):
         result.score = 0.5
         
-def test_create_criterion_match_with_explanation():
-
-    result = CriterionMatch(
-        criterion=MatchingCriterion.SKILLS,
-        score=1.0,
-        explanation="Python",
-    )
-
-    assert result.explanation == "Python"
-    
-def test_create_criterion_match_without_explanation():
-
-    result = CriterionMatch(
-        criterion=MatchingCriterion.SKILLS,
-        score=1.0,
-    )
-
-    assert result.explanation is None
     
 def test_create_criterion_match_with_matched_requirements():
 
@@ -104,3 +86,27 @@ def test_create_criterion_match_with_non_applicable():
 
     assert result.applicable is False
     
+def test_criterion_match_contains_details():
+
+    criterion = CriterionMatch(
+        criterion=MatchingCriterion.EXPERIENCE,
+        score=0.8,
+        details={
+            "required": 5,
+            "candidate": 4,
+        },
+    )
+
+    assert criterion.details == {
+        "required": 5,
+        "candidate": 4,
+    }
+    
+def test_criterion_match_contains_empty_details_by_default():
+
+    criterion = CriterionMatch(
+        criterion=MatchingCriterion.SKILLS,
+        score=1.0,
+    )
+
+    assert criterion.details == {}

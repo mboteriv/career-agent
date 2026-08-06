@@ -262,3 +262,259 @@ The matching algorithm should remain:
 - independent from the workflow and CLI layers.
 
 These goals guide future iterations of the project.
+
+## Phase 15 – Match explanation
+
+### Motivation
+
+Up to Phase 14, the main objective of the matching engine was to calculate an accurate score representing how well a candidate matches a job offer.
+
+Starting with Phase 15, the focus shifts from **calculation** to **explanation**.
+
+A numerical score alone is not sufficient for users to understand why a recommendation was produced. The matching engine should also expose the evidence behind every criterion.
+
+---
+
+### MatchResultFormatter
+
+A new service, `MatchResultFormatter`, is responsible for converting a `MatchResult` into a human-readable report.
+
+This responsibility intentionally lives outside the domain model.
+
+Responsibilities:
+
+- Format the overall matching score.
+- Interpret the score using qualitative labels (e.g. *Strong match*).
+- Present every applicable matching criterion.
+- Display matched and missing requirements.
+- Keep presentation concerns separated from the matching algorithm.
+
+The formatter contains no business logic and never recalculates scores.
+
+---
+
+### Formatter architecture
+
+The formatter follows the same orchestration pattern used by `JobMatchingService`.
+
+```text
+format()
+├── _format_score()
+├── _format_criteria()
+│
+└── _format_criterion()
+        │
+        ├── _format_default()
+        ├── _format_experience()
+        └── ...
+```
+
+Each criterion can progressively evolve its own formatting without affecting the rest of the report.
+
+---
+
+### Current output
+
+The formatter currently provides:
+
+- Overall matching score.
+- Qualitative score label.
+- Applicable criteria ordered by importance.
+- Individual criterion score.
+- Matched requirements.
+- Missing requirements.
+
+Example:
+
+```text
+Overall match: 82% (Strong match)
+
+Criteria
+
+Skills: 75%
+  ✓ Python
+  ✗ Docker
+
+Experience: 80%
+
+Languages: 100%
+  ✓ English
+```
+
+---
+
+### Future evolution
+
+Current `CriterionMatch` objects expose the result of each criterion:
+
+- score
+- matched requirements
+- missing requirements
+
+However, they do not expose the evidence used to compute that score.
+
+Examples of missing contextual information include:
+
+- Required vs. candidate years of experience.
+- Required vs. offered salary.
+- Required and candidate language levels.
+
+Future iterations will enrich `CriterionMatch` with contextual details so that the formatter can explain *why* a score was assigned, rather than only displaying the score itself.
+
+This evolution will preserve the separation of responsibilities:
+
+- `JobMatchingService` computes.
+- `MatchingScoreCalculator` scores.
+- `CriterionMatch` stores evidence.
+- `MatchResultFormatter` explains.
+
+# Phase 15 – Explainable matching
+
+## Motivation
+
+The matching engine originally focused on producing a single numerical score representing how well a candidate matched a job offer.
+
+Although accurate, a single score is not sufficient for users to understand the reasoning behind a recommendation.
+
+Phase 15 introduces an explanation layer that makes every matching decision transparent without changing the underlying algorithm.
+
+---
+
+## Design goals
+
+The explanation layer follows four principles:
+
+- The matching algorithm remains deterministic.
+- Business logic is never duplicated.
+- The explanation is generated from the same data used to calculate the score.
+- Presentation is separated from matching logic.
+
+---
+
+## CriterionMatch
+
+`CriterionMatch` evolved from a simple intermediate result into the central representation of an evaluated matching criterion.
+
+Each criterion now contains:
+
+- criterion
+- score
+- applicable
+- matched
+- missing
+- details
+
+The `details` field stores contextual information used to explain the assigned score.
+
+Examples:
+
+Experience
+
+```python
+details = {
+    "candidate": 4,
+    "required": 5,
+}
+```
+
+Salary
+
+```python
+details = {
+    "candidate": 40000,
+    "required": 45000,
+    "currency": "EUR",
+}
+```
+
+Languages
+
+```python
+details = {
+    "candidate": "English B2",
+    "required": "English C1",
+}
+```
+
+Not every criterion requires contextual details.
+
+For example, Remote and Country are already self-explanatory through their matched and missing values.
+
+---
+
+## MatchResultFormatter
+
+Presentation responsibilities have been extracted into `MatchResultFormatter`.
+
+The formatter is intentionally independent from the matching algorithm.
+
+Responsibilities:
+
+- Format the overall score.
+- Add qualitative labels (Excellent match, Strong match, etc.).
+- Order criteria according to their importance.
+- Explain each applicable criterion.
+- Present matched and missing requirements.
+- Display contextual details when available.
+
+The formatter never recalculates scores.
+
+---
+
+## Architecture
+
+```text
+                JobMatchingService
+                        │
+                        ▼
+               list[CriterionMatch]
+                        │
+                        ▼
+                 MatchResult
+                        │
+                        ▼
+            MatchResultFormatter
+                        │
+                        ▼
+            Human-readable explanation
+```
+
+---
+
+## Separation of responsibilities
+
+The matching pipeline is now divided into four distinct responsibilities.
+
+### JobMatchingService
+
+Coordinates the matching process and builds every `CriterionMatch`.
+
+### MatchingScoreCalculator
+
+Calculates the overall weighted score from individual criteria.
+
+### CriterionMatch
+
+Stores both the result and the evidence produced by every matching criterion.
+
+### MatchResultFormatter
+
+Transforms the matching result into a readable explanation.
+
+---
+
+## Future evolution
+
+Phase 15 intentionally focuses only on explaining already available information.
+
+The next architectural step will improve the quality of the information entering the matching engine rather than modifying the scoring algorithm itself.
+
+Future work will introduce semantic profile extraction, allowing candidate profiles and job offers to be enriched before matching takes place.
+
+## Architectural direction
+
+The current matching engine operates on normalized `CandidateProfile` and `JobOffer` objects.
+
+Future iterations will introduce an enrichment layer responsible for transforming raw documents (such as CVs and job descriptions) into normalized semantic profiles before matching.
+
+This evolution preserves the existing matching engine while improving the quality and consistency of its inputs.

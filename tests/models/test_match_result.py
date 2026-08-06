@@ -9,10 +9,12 @@ from pydantic import ValidationError
 
 from career_agent.models.matching_criterion import MatchingCriterion
 from career_agent.services.job_matching_service import JobMatchingService
-from tests.factories import create_job_offer
+
 from career_agent.models.salary_expectation import (
     SalaryExpectation,
 )
+from tests.factories import create_job_offer
+
 
 
 
@@ -248,3 +250,4 @@ def test_match_result_contains_criterion_matches():
     )
 
     assert result.criterion_matches == criterion_matches
+    

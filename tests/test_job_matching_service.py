@@ -1069,3 +1069,103 @@ def test_match_scores_zero_when_language_level_is_insufficient():
     )
 
     assert result.score == 0.0
+    
+def test_experience_criterion_contains_details():
+
+    profile = CandidateProfile(
+        years_experience=4,
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            years_experience=5,
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    experience = next(
+        criterion
+        for criterion in result.criterion_matches
+        if criterion.criterion
+        == MatchingCriterion.EXPERIENCE
+    )
+
+    assert experience.details == {
+        "required": 5,
+        "candidate": 4,
+    }
+    
+def test_salary_criterion_contains_details():
+
+    profile = CandidateProfile(
+        salary=SalaryExpectation(
+            amount=40000,
+        ),
+    )
+
+    job = create_job_offer(
+        salary=SalaryExpectation(
+            amount=45000,
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    salary = next(
+        criterion
+        for criterion in result.criterion_matches
+        if criterion.criterion
+        == MatchingCriterion.SALARY
+    )
+
+    assert salary.details == {
+        "candidate": 40000,
+        "required": 45000,
+        "currency": "EUR",
+    }
+    
+def test_languages_criterion_contains_details():
+
+    profile = CandidateProfile(
+        languages=[
+            LanguageSkill(
+                language="English",
+                level="B2",
+            ),
+        ],
+    )
+
+    job = create_job_offer(
+        requirements=JobRequirements(
+            languages=[
+                LanguageSkill(
+                    language="English",
+                    level="C1",
+                ),
+            ],
+        ),
+    )
+
+    result = JobMatchingService().match(
+        job,
+        profile,
+    )
+
+    languages = next(
+        criterion
+        for criterion in result.criterion_matches
+        if criterion.criterion
+        == MatchingCriterion.LANGUAGES
+    )
+
+    assert languages.details == {
+        "candidate": "English B2",
+        "required": "English C1",
+    }

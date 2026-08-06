@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
+from typing import Any
 
 from career_agent.models.candidate_profile import CandidateProfile
 from career_agent.models.job_offer import JobOffer
@@ -14,7 +15,6 @@ class CriterionMatch(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    explanation: str | None = None
     
     criterion: MatchingCriterion
 
@@ -30,5 +30,8 @@ class CriterionMatch(BaseModel):
         default_factory=list,
     )
     
+    details: dict[str, Any] = Field(
+        default_factory=dict,
+    )
     
     

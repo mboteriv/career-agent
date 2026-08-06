@@ -539,6 +539,18 @@ class JobMatchingService:
             profile.salary is not None
             and job.salary is not None
         )
+        
+        details = {}
+
+        if (
+            profile.salary is not None
+            and job.salary is not None
+        ):
+            details = {
+                "candidate": profile.salary.amount,
+                "required": job.salary.amount,
+                "currency": job.salary.currency,
+            }
 
         matched = []
         missing = []
@@ -555,11 +567,12 @@ class JobMatchingService:
                 )
 
         return CriterionMatch(
-        criterion=MatchingCriterion.SALARY,
-        score=score,
-        applicable=applicable,
-        matched=matched,
-        missing=missing,
+            criterion=MatchingCriterion.SALARY,
+            score=score,
+            applicable=applicable,
+            matched=matched,
+            missing=missing,
+            details=details,
         )
         
     def _build_languages_criterion_match(
@@ -567,6 +580,22 @@ class JobMatchingService:
         job: JobOffer,
         profile: CandidateProfile,
     )-> CriterionMatch:
+        
+        details = {}
+
+        if profile.languages and job.requirements.languages:
+
+            candidate = profile.languages[0]
+            required = job.requirements.languages[0]
+
+            details = {
+                "candidate": (
+                    f"{candidate.language} {candidate.level}"
+                ),
+                "required": (
+                    f"{required.language} {required.level}"
+                ),
+            }
 
         applicable = bool(
             job.requirements.languages,
@@ -590,6 +619,7 @@ class JobMatchingService:
             matched=sorted(matched),
             missing=sorted(missing),
             applicable=applicable,
+            details=details,
         )
     
     def _build_experience_criterion_match(
@@ -607,6 +637,15 @@ class JobMatchingService:
             job.requirements.years_experience
             is not None
         )
+        
+        details={
+            "required": (
+                job.requirements.years_experience
+            ),
+            "candidate": (
+                profile.years_experience
+            ),
+        }
 
         matched = []
         missing = []
@@ -628,6 +667,7 @@ class JobMatchingService:
             applicable=applicable,
             matched=matched,
             missing=missing,
+            details=details,
         )
         
     def _language_matches(
@@ -714,3 +754,5 @@ class JobMatchingService:
             for language
             in profile.languages
         }
+        
+    
