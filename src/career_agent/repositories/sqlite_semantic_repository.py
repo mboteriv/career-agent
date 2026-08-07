@@ -2,7 +2,6 @@ import sqlite3
 from pathlib import Path
 
 from career_agent.models.semantic_entity import SemanticEntity
-from career_agent.models.occupation_skill_relation import OccupationSkillRelation
 from career_agent.repositories.semantic_repository import (
     SemanticRepository,
 )
@@ -173,3 +172,102 @@ class SQLiteSemanticRepository(
             return None
 
         return row[0]
+    
+    def find_all_occupations(
+        self,
+    ) -> list[SemanticEntity]:
+
+        with sqlite3.connect(
+            self._database_path,
+        ) as connection:
+
+            rows = connection.execute(
+                """
+                SELECT
+                    id,
+                    preferred_label,
+                    description
+                FROM occupation
+                ORDER BY preferred_label
+                """
+            ).fetchall()
+
+        return [
+            SemanticEntity(
+                id=row[0],
+                preferred_label=row[1],
+                description=row[2],
+            )
+            for row in rows
+        ]
+        
+    def find_occupation_by_id(
+        self,
+        occupation_id: str,
+    ) -> SemanticEntity | None:
+
+        with sqlite3.connect(
+            self._database_path,
+        ) as connection:
+
+            row = connection.execute(
+                """
+                SELECT
+                    id,
+                    preferred_label,
+                    description
+                FROM occupation
+                WHERE id = ?
+                """,
+                (
+                    occupation_id,
+                ),
+            ).fetchone()
+
+        if row is None:
+            return None
+
+        return SemanticEntity(
+            id=row[0],
+            preferred_label=row[1],
+            description=row[2],
+        )
+
+    def find_prerequisites(
+        self,
+        skill_id: str,
+    ) -> list[SemanticEntity]:
+
+        with sqlite3.connect(
+            self._database_path,
+        ) as connection:
+
+            rows = connection.execute(
+                """
+                SELECT
+                    skill.id,
+                    skill.preferred_label,
+                    skill.description
+                FROM skill_dependency
+
+                JOIN skill
+                    ON skill.id =
+                        skill_dependency.prerequisite_skill_id
+
+                WHERE dependent_skill_id = ?
+
+                ORDER BY skill.preferred_label
+                """,
+                (
+                    skill_id,
+                ),
+            ).fetchall()
+
+        return [
+            SemanticEntity(
+                id=row[0],
+                preferred_label=row[1],
+                description=row[2],
+            )
+            for row in rows
+        ]

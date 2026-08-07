@@ -6,7 +6,7 @@ from career_agent.models.occupation_skill_relation import OccupationSkillRelatio
 from career_agent.models.semantic_entity import SemanticEntity
 from career_agent.repositories.sqlite_semantic_repository import SQLiteSemanticRepository
 from career_agent.services.sqlite_database_builder import KnowledgeDatabaseBuilder
-
+from career_agent.models.skill_dependency import SkillDependency
 
 def test_find_skill_by_label_returns_skill(
     tmp_path,
@@ -379,5 +379,75 @@ def test_build_inserts_occupation_skill_relations(
             "software-developer",
             "python",
             "essential",
+        ),
+    ]
+    
+def test_knowledge_contains_skill_dependencies():
+
+    knowledge = Knowledge(
+        skill_dependencies=[
+            SkillDependency(
+                prerequisite_skill_id="git",
+                dependent_skill_id="docker",
+            ),
+        ],
+    )
+
+    assert knowledge.skill_dependencies == [
+        SkillDependency(
+            prerequisite_skill_id="git",
+            dependent_skill_id="docker",
+        ),
+    ]
+    
+def test_build_inserts_skill_dependencies(
+    tmp_path,
+):
+
+    database = tmp_path / "career_agent.db"
+
+    knowledge = Knowledge(
+        skills=[
+            SemanticEntity(
+                id="git",
+                preferred_label="Git",
+            ),
+            SemanticEntity(
+                id="docker",
+                preferred_label="Docker",
+            ),
+        ],
+        skill_dependencies=[
+            SkillDependency(
+                prerequisite_skill_id="git",
+                dependent_skill_id="docker",
+            ),
+        ],
+    )
+
+    builder = KnowledgeDatabaseBuilder()
+
+    builder.build(
+        knowledge,
+        database,
+    )
+
+    connection = sqlite3.connect(
+        database,
+    )
+
+    rows = connection.execute(
+        """
+        SELECT
+            prerequisite_skill_id,
+            dependent_skill_id
+        FROM skill_dependency
+        """
+    ).fetchall()
+
+    assert rows == [
+        (
+            "git",
+            "docker",
         ),
     ]

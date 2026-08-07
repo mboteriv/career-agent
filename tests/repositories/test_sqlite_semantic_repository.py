@@ -1,5 +1,6 @@
 from career_agent.models.knowledge import Knowledge
 from career_agent.models.semantic_entity import SemanticEntity
+from career_agent.models.skill_dependency import SkillDependency
 from career_agent.repositories.sqlite_semantic_repository import (
     SQLiteSemanticRepository,
 )
@@ -344,3 +345,78 @@ def test_find_relation_type_returns_none_when_relation_does_not_exist(
     )
 
     assert relation_type is None
+    
+def test_find_prerequisites_returns_prerequisite_skills(
+    tmp_path,
+):
+
+    database = tmp_path / "career_agent.db"
+
+    knowledge = Knowledge(
+        skills=[
+            SemanticEntity(
+                id="git",
+                preferred_label="Git",
+            ),
+            SemanticEntity(
+                id="docker",
+                preferred_label="Docker",
+            ),
+        ],
+        skill_dependencies=[
+            SkillDependency(
+                prerequisite_skill_id="git",
+                dependent_skill_id="docker",
+            ),
+        ],
+    )
+
+    builder = KnowledgeDatabaseBuilder()
+
+    builder.build(
+        knowledge,
+        database,
+    )
+
+    repository = SQLiteSemanticRepository(
+        database,
+    )
+
+    assert repository.find_prerequisites(
+        "docker",
+    ) == [
+        SemanticEntity(
+            id="git",
+            preferred_label="Git",
+        ),
+    ]
+    
+def test_find_prerequisites_returns_empty_list_when_skill_has_no_prerequisites(
+    tmp_path,
+):
+
+    database = tmp_path / "career_agent.db"
+
+    knowledge = Knowledge(
+        skills=[
+            SemanticEntity(
+                id="python",
+                preferred_label="Python",
+            ),
+        ],
+    )
+
+    builder = KnowledgeDatabaseBuilder()
+
+    builder.build(
+        knowledge,
+        database,
+    )
+
+    repository = SQLiteSemanticRepository(
+        database,
+    )
+
+    assert repository.find_prerequisites(
+        "python",
+    ) == []

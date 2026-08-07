@@ -80,6 +80,28 @@ class KnowledgeDatabaseBuilder:
             )
             """
         )
+        
+        connection.execute(
+            """
+            CREATE TABLE skill_dependency(
+
+                prerequisite_skill_id TEXT NOT NULL,
+
+                dependent_skill_id TEXT NOT NULL,
+
+                PRIMARY KEY(
+                    prerequisite_skill_id,
+                    dependent_skill_id
+                ),
+
+                FOREIGN KEY(prerequisite_skill_id)
+                    REFERENCES skill(id),
+
+                FOREIGN KEY(dependent_skill_id)
+                    REFERENCES skill(id)
+                )
+            """
+        )
                 
         for skill in knowledge.skills:
         
@@ -151,6 +173,22 @@ class KnowledgeDatabaseBuilder:
                     relation.occupation_id,
                     relation.skill_id,
                     relation.relation_type,
+                ),
+            )
+            
+        for dependency in knowledge.skill_dependencies:
+        
+            connection.execute(
+                """
+                INSERT INTO skill_dependency(
+                    prerequisite_skill_id,
+                    dependent_skill_id
+                )
+                VALUES (?, ?)
+                """,
+                (
+                    dependency.prerequisite_skill_id,
+                    dependency.dependent_skill_id
                 ),
             )
 

@@ -7,7 +7,9 @@ from career_agent.models.semantic_entity import (
 from career_agent.models.occupation_skill_relation import (
     OccupationSkillRelation,
 )
-
+from career_agent.models.skill_dependency import (
+    SkillDependency,
+)
 
 class Knowledge(BaseModel):
 
@@ -26,6 +28,10 @@ class Knowledge(BaseModel):
     occupation_skill_relations: list[
         OccupationSkillRelation
     ] = Field(
+        default_factory=list,
+    )
+    
+    skill_dependencies: list[SkillDependency] = Field(
         default_factory=list,
     )
     

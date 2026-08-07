@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Protocol
 
 from career_agent.models.semantic_entity import (
@@ -49,4 +50,16 @@ class SemanticRepository(Protocol):
         occupation_id: str,
         skill_id: str,
     ) -> str | None:
+        ...
+        
+    def find_all_occupations(
+        self,
+    ) -> list[SemanticEntity]:
+        ...
+        
+    @abstractmethod
+    def find_prerequisites(
+        self,
+        skill_id: str,
+    ) -> list[SemanticEntity]:
         ...
