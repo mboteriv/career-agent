@@ -10,6 +10,8 @@ class SemanticEntity(BaseModel):
     id: str
 
     preferred_label: str
+    
+    description: str | None = None
 
     aliases: list[str] = Field(
         default_factory=list,
