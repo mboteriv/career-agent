@@ -1,5 +1,6 @@
 from career_agent.models.learning_path import LearningPath
 
+from career_agent.models.skill_dependency import SkillDependency
 from career_agent.models.skill_recommendation import SkillRecommendation
 from career_agent.repositories.semantic_repository import SemanticRepository
 from career_agent.services.skill_recommendation_engine import (
@@ -29,9 +30,9 @@ class LearningPathPlanner:
         )
 
         steps = []
-
         visited = set()
-
+        dependencies = []
+        
         for recommendation in recommendations.recommendations:
 
             steps.extend(
@@ -39,6 +40,7 @@ class LearningPathPlanner:
                     recommendation.skill,
                     recommendation.priority,
                     visited,
+                    dependencies,
                 )
             )
 
@@ -51,8 +53,12 @@ class LearningPathPlanner:
                 steps.append(
                     recommendation,
                 )
+                
+        print("DEPENDENCIES:", dependencies)
+                               
         return LearningPath(
             steps=steps,
+            dependencies=dependencies,
         )
         
     def _collect_prerequisites(
@@ -60,10 +66,14 @@ class LearningPathPlanner:
         skill: SemanticEntity,
         priority: RecommendationPriority,
         visited: set[str] | None = None,
+        dependencies: list[SkillDependency] | None = None,
     ) -> list[SkillRecommendation]:
         
         if visited is None:
             visited = set()
+            
+        if dependencies is None:
+            dependencies = []
         
         prerequisites = self._repository.find_prerequisites(
             skill.id,
@@ -76,6 +86,16 @@ class LearningPathPlanner:
         for prerequisite in prerequisites:
 
             if prerequisite.id in visited:
+                dependency = SkillDependency(
+                    prerequisite_skill_id=prerequisite.id,
+                    dependent_skill_id=skill.id,
+                )
+
+                if dependency not in dependencies:
+                    dependencies.append(
+                        dependency,
+                    )
+
                 continue
 
             visited.add(
@@ -87,8 +107,19 @@ class LearningPathPlanner:
                     prerequisite,
                     priority,
                     visited,
+                    dependencies,
                 )
             )
+
+            dependency = SkillDependency(
+                prerequisite_skill_id=prerequisite.id,
+                dependent_skill_id=skill.id,
+            )
+
+            if dependency not in dependencies:
+                dependencies.append(
+                    dependency,
+                )
 
             steps.append(
                 SkillRecommendation(

@@ -169,6 +169,12 @@ def test_plan_includes_prerequisites_before_recommended_skills(
                 priority=RecommendationPriority.ESSENTIAL,
             ),
         ],
+        dependencies=[
+            SkillDependency(
+                prerequisite_skill_id="git",
+                dependent_skill_id="docker",
+            ),
+        ],
     )
     
 def test_plan_includes_transitive_prerequisites(
@@ -245,6 +251,17 @@ def test_plan_includes_transitive_prerequisites(
         occupation_id="platform-engineer",
         candidate_skills=[],
     )
+    
+    assert learning_path.dependencies == [
+        SkillDependency(
+            prerequisite_skill_id="git",
+            dependent_skill_id="docker",
+        ),
+        SkillDependency(
+            prerequisite_skill_id="docker",
+            dependent_skill_id="kubernetes",
+        ),
+    ]
 
     assert learning_path == LearningPath(
         steps=[
@@ -268,6 +285,16 @@ def test_plan_includes_transitive_prerequisites(
                     preferred_label="Kubernetes",
                 ),
                 priority=RecommendationPriority.ESSENTIAL,
+            ),
+        ],
+        dependencies=[
+            SkillDependency(
+                prerequisite_skill_id="git",
+                dependent_skill_id="docker",
+            ),
+            SkillDependency(
+                prerequisite_skill_id="docker",
+                dependent_skill_id="kubernetes",
             ),
         ],
     )
@@ -374,6 +401,16 @@ def test_plan_does_not_duplicate_prerequisites(
                     preferred_label="Linux",
                 ),
                 priority=RecommendationPriority.ESSENTIAL,
+            ),
+        ],
+        dependencies=[
+            SkillDependency(
+                prerequisite_skill_id="git",
+                dependent_skill_id="docker",
+            ),
+            SkillDependency(
+                prerequisite_skill_id="git",
+                dependent_skill_id="linux",
             ),
         ],
     )
