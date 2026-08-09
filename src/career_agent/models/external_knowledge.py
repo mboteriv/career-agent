@@ -27,3 +27,4 @@ class ExternalKnowledge(BaseModel):
     ] = Field(
         default_factory=list,
     )
+    

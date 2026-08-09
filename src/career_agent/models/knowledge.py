@@ -45,4 +45,7 @@ class KnowledgeCompiler:
         return Knowledge(
             skills=external.skills,
             occupations=external.occupations,
+            occupation_skill_relations=(
+                external.occupation_skill_relations
+            ),
         )
